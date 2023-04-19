@@ -1,10 +1,1 @@
-entidades\Grupo_.class
-entidades\Asistencia.class
-entidades\Grupo.class
-entidades\Alumno.class
-entidades\Alumno_.class
-entidades\Asistencia_.class
-.netbeans_automatic_build
-entidades\Maestro.class
-enumeradores\EstadoAsistencia.class
-entidades\Maestro_.class
+entidades\AsistenciaDominio.class
