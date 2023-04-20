@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 import java.util.List;
 
 public class Grupo {
-    private Long grupo_id;
+    private Long id_grupo;
 
     private String nombreClase;
 
@@ -16,28 +16,25 @@ public class Grupo {
 
     private Timestamp horaFin;
 
-    private List<Alumno> alumnos;
-
-    private List<Asistencia> asistencias;
+    private List<Long> id_alumnos;
 
     public Grupo() {
     }
 
-    public Grupo(Long grupo_id, String nombreClase, Timestamp horaInicio, Timestamp horaFin, List<Alumno> alumnos, List<Asistencia> asistencias) {
-        this.grupo_id = grupo_id;
+    public Grupo(Long id_grupo, String nombreClase, Timestamp horaInicio, Timestamp horaFin, List<Long> id_alumnos) {
+        this.id_grupo = id_grupo;
         this.nombreClase = nombreClase;
         this.horaInicio = horaInicio;
         this.horaFin = horaFin;
-        this.alumnos = alumnos;
-        this.asistencias = asistencias;
+        this.id_alumnos = id_alumnos;
     }
 
-    public Long getGrupo_id() {
-        return grupo_id;
+    public Long getId_grupo() {
+        return id_grupo;
     }
 
-    public void setGrupo_id(Long grupo_id) {
-        this.grupo_id = grupo_id;
+    public void setId_grupo(Long id_grupo) {
+        this.id_grupo = id_grupo;
     }
 
     public String getNombreClase() {
@@ -64,26 +61,18 @@ public class Grupo {
         this.horaFin = horaFin;
     }
 
-    public List<Alumno> getAlumnos() {
-        return alumnos;
+    public List<Long> getId_alumnos() {
+        return id_alumnos;
     }
 
-    public void setAlumnos(List<Alumno> alumnos) {
-        this.alumnos = alumnos;
-    }
-
-    public List<Asistencia> getAsistencias() {
-        return asistencias;
-    }
-
-    public void setAsistencias(List<Asistencia> asistencias) {
-        this.asistencias = asistencias;
+    public void setId_alumnos(List<Long> id_alumnos) {
+        this.id_alumnos = id_alumnos;
     }
 
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (grupo_id != null ? grupo_id.hashCode() : 0);
+        hash += (id_grupo != null ? id_grupo.hashCode() : 0);
         return hash;
     }
 
@@ -94,7 +83,7 @@ public class Grupo {
             return false;
         }
         Grupo other = (Grupo) object;
-        if ((this.grupo_id == null && other.grupo_id != null) || (this.grupo_id != null && !this.grupo_id.equals(other.grupo_id))) {
+        if ((this.id_grupo == null && other.id_grupo != null) || (this.id_grupo != null && !this.id_grupo.equals(other.id_grupo))) {
             return false;
         }
         return true;
@@ -102,6 +91,6 @@ public class Grupo {
 
     @Override
     public String toString() {
-        return "entidades.Grupo[ id=" + grupo_id + " ]";
+        return "entidades.Grupo[ id=" + id_grupo + " ]";
     }
 }

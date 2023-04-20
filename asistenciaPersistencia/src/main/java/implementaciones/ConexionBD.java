@@ -13,7 +13,7 @@ public class ConexionBD implements IConexionBD {
     public Connection obtenerConexion() throws SQLException {
         try {
             if (conexion == null) {
-                conexion = DriverManager.getConnection("jdbc:sqlite:asistencia.db");
+                conexion = DriverManager.getConnection("jdbc:sqlite:src/main/java/database/asistencia.db");
             }
         } catch (SQLException ex) {
             System.err.println("No se ha podido conectar a la base de datos\n" + ex.getMessage());

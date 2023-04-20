@@ -4,10 +4,9 @@
  */
 package entidades;
 
-import java.util.List;
-
 public class Alumno {
-    private Long alumno_id;
+
+    private Long id_alumno;
 
     private String matricula_alumno;
 
@@ -19,27 +18,24 @@ public class Alumno {
 
     private String dispositivoBluetooth;
 
-    private List<Asistencia> asistencias;
-
     public Alumno() {
     }
 
-    public Alumno(Long alumno_id, String matricula_alumno, String correo_alumno, String nombre, String apellido, String dispositivoBluetooth, List<Asistencia> asistencias) {
-        this.alumno_id = alumno_id;
+    public Alumno(Long id_alumno, String matricula_alumno, String correo_alumno, String nombre, String apellido, String dispositivoBluetooth) {
+        this.id_alumno = id_alumno;
         this.matricula_alumno = matricula_alumno;
         this.correo_alumno = correo_alumno;
         this.nombre = nombre;
         this.apellido = apellido;
         this.dispositivoBluetooth = dispositivoBluetooth;
-        this.asistencias = asistencias;
     }
 
     public Long getAlumno_id() {
-        return alumno_id;
+        return id_alumno;
     }
 
-    public void setAlumno_id(Long alumno_id) {
-        this.alumno_id = alumno_id;
+    public void setId_alumno(Long id_alumno) {
+        this.id_alumno = id_alumno;
     }
 
     public String getMatricula_alumno() {
@@ -82,18 +78,10 @@ public class Alumno {
         this.dispositivoBluetooth = dispositivoBluetooth;
     }
 
-    public List<Asistencia> getAsistencias() {
-        return asistencias;
-    }
-
-    public void setAsistencias(List<Asistencia> asistencias) {
-        this.asistencias = asistencias;
-    }
-
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (alumno_id != null ? alumno_id.hashCode() : 0);
+        hash += (id_alumno != null ? id_alumno.hashCode() : 0);
         return hash;
     }
 
@@ -104,7 +92,7 @@ public class Alumno {
             return false;
         }
         Alumno other = (Alumno) object;
-        if ((this.alumno_id == null && other.alumno_id != null) || (this.alumno_id != null && !this.alumno_id.equals(other.alumno_id))) {
+        if ((this.id_alumno == null && other.id_alumno != null) || (this.id_alumno != null && !this.id_alumno.equals(other.id_alumno))) {
             return false;
         }
         return true;
@@ -112,6 +100,6 @@ public class Alumno {
 
     @Override
     public String toString() {
-        return "entidades.Alumnos[ id=" + alumno_id + " ]";
+        return "entidades.Alumnos[ id=" + id_alumno + " ]";
     }
 }

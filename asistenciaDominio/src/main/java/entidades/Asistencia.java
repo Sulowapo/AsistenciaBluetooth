@@ -8,11 +8,12 @@ import enumeradores.EstadoAsistencia;
 import java.util.Date;
 
 public class Asistencia {
-    private Long asistencia_id;
 
-    private Alumno alumno;
+    private Long id_asistencia;
 
-    private Grupo grupo;
+    private Long id_alumno;
+
+    private Long id_grupo;
 
     private Date fechaHoraRegistro;
 
@@ -21,36 +22,36 @@ public class Asistencia {
     public Asistencia() {
     }
 
-    public Asistencia(Long asistencia_id, Alumno alumno, Grupo grupo, Date fechaHoraRegistro, EstadoAsistencia estado) {
-        this.asistencia_id = asistencia_id;
-        this.alumno = alumno;
-        this.grupo = grupo;
+    public Asistencia(Long id_asistencia, Long id_alumno, Long id_grupo, Date fechaHoraRegistro, EstadoAsistencia estado) {
+        this.id_asistencia = id_asistencia;
+        this.id_alumno = id_alumno;
+        this.id_grupo = id_grupo;
         this.fechaHoraRegistro = fechaHoraRegistro;
         this.estado = estado;
     }
 
-    public Long getAsistencia_id() {
-        return asistencia_id;
+    public Long getId_asistencia() {
+        return id_asistencia;
     }
 
-    public void setAsistencia_id(Long asistencia_id) {
-        this.asistencia_id = asistencia_id;
+    public void setId_asistencia(Long id_asistencia) {
+        this.id_asistencia = id_asistencia;
     }
 
-    public Alumno getAlumno() {
-        return alumno;
+    public Long getId_alumno() {
+        return id_alumno;
     }
 
-    public void setAlumno(Alumno alumno) {
-        this.alumno = alumno;
+    public void setId_alumno(Long id_alumno) {
+        this.id_alumno = id_alumno;
     }
 
-    public Grupo getGrupo() {
-        return grupo;
+    public Long getId_grupo() {
+        return id_grupo;
     }
 
-    public void setGrupo(Grupo grupo) {
-        this.grupo = grupo;
+    public void setId_grupo(Long id_grupo) {
+        this.id_grupo = id_grupo;
     }
 
     public Date getFechaHoraRegistro() {
@@ -72,7 +73,7 @@ public class Asistencia {
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (asistencia_id != null ? asistencia_id.hashCode() : 0);
+        hash += (id_asistencia != null ? id_asistencia.hashCode() : 0);
         return hash;
     }
 
@@ -83,7 +84,7 @@ public class Asistencia {
             return false;
         }
         Asistencia other = (Asistencia) object;
-        if ((this.asistencia_id == null && other.asistencia_id != null) || (this.asistencia_id != null && !this.asistencia_id.equals(other.asistencia_id))) {
+        if ((this.id_asistencia == null && other.id_asistencia != null) || (this.id_asistencia != null && !this.id_asistencia.equals(other.id_asistencia))) {
             return false;
         }
         return true;
@@ -91,6 +92,6 @@ public class Asistencia {
 
     @Override
     public String toString() {
-        return "entidades.Asistencia[ id=" + asistencia_id + " ]";
+        return "entidades.Asistencia[ id=" + id_asistencia + " ]";
     }
 }
