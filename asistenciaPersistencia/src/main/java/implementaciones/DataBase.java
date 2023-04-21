@@ -22,13 +22,37 @@ public class DataBase implements IDataBase {
         try {
             Connection con = conexion.obtenerConexion();
             Statement stmt = con.createStatement();
-            String sql = "CREATE TABLE alumnos "
+            String sql =
+                    //Tabla de alumnos
+                      "CREATE TABLE alumnos "
                     + "(id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                    + " nombre VARCHAR(255), "
-                    + " apellido VARCHAR(255), "
-                    + " correo VARCHAR(255"
-                    + " dispositivo
-
+                    + " nombre TEXT NOT NULL, "
+                    + " apellido TEXT NOT NULL, "
+                    + " correo TEXT, "
+                    + " dispositivoBluetoothNombre TEXT, "
+                    + " dispositivoBlietoothAdress TEXT); "
+                    //Tabla de grupos
+                    + "CREATE TABLE grupos "
+                    + "(id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + " nombreClase TEXT NOT NULL, "
+                    + " horaInicio TEXT NOT NULL, "
+                    + " horaFin TEXT NOT NULL); "
+                    //Tabla de asistencias
+                    + "CREATE TABLE asistencias "
+                    + "(id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + " id_alumno INTEGER, "
+                    + " id_grupo INTEGER, "
+                    + " fechaHoraRegistro TEXT, "
+                    + " estado TEXT NOT NULL, "
+                    + " FOREIGN KEY(id_grupo) REFERENCES grupos(id), "
+                    + " FOREIGN KEY(id_alumno) REFERENCES alumnos(id)); "
+                    //Tabla de relGruposAlumnos
+                    + " CREATE TABLE relGruposAlumnos "
+                    + "(id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + " id_alumno INTEGER, "
+                    + " id_grupo INTEGER, "
+                    + " FOREIGN KEY(id_alumno) REFERENCES alumnos(id), "
+                    + " FOREIGN KEY(id_grupo) REFERENCES grupos(id));";
             stmt.executeUpdate(sql);
             System.out.println("Tabla creada exitosamente");
             return true;

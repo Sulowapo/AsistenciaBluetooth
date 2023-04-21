@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package entidades;
 
 import java.sql.Timestamp;
@@ -16,8 +13,6 @@ public class Grupo {
 
     private Timestamp horaFin;
 
-    private List<Long> id_alumnos;
-
     public Grupo() {
     }
 
@@ -26,7 +21,6 @@ public class Grupo {
         this.nombreClase = nombreClase;
         this.horaInicio = horaInicio;
         this.horaFin = horaFin;
-        this.id_alumnos = id_alumnos;
     }
 
     public Long getId_grupo() {
@@ -59,14 +53,6 @@ public class Grupo {
 
     public void setHoraFin(Timestamp horaFin) {
         this.horaFin = horaFin;
-    }
-
-    public List<Long> getId_alumnos() {
-        return id_alumnos;
-    }
-
-    public void setId_alumnos(List<Long> id_alumnos) {
-        this.id_alumnos = id_alumnos;
     }
 
     @Override
