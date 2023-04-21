@@ -26,7 +26,8 @@ public class DataBase implements IDataBase {
                     + "(id INTEGER PRIMARY KEY AUTOINCREMENT, "
                     + " nombre VARCHAR(255), "
                     + " apellido VARCHAR(255), "
-                    + " correo VARCHAR(255))";
+                    + " correo VARCHAR(255"
+                    + " dispositivo
 
             stmt.executeUpdate(sql);
             System.out.println("Tabla creada exitosamente");
