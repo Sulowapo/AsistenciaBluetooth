@@ -8,5 +8,5 @@ public interface IAsistenciasDAO {
     public boolean agregar(Asistencia asistencia);
     public boolean editar(Asistencia asistencia);
     public boolean eliminar(Asistencia asistencia);
-    public List<Asistencia> consultarTodos();
+    public List<Asistencia> consultarAsistenciasPorGrupo(Long id_grupo);
 }

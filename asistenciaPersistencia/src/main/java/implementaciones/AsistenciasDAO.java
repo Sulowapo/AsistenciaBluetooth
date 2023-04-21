@@ -1,11 +1,15 @@
 package implementaciones;
 
 import entidades.Asistencia;
+import enumeradores.EstadoAsistencia;
 import interfaces.IAsistenciasDAO;
 import interfaces.IConexionBD;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class AsistenciasDAO implements IAsistenciasDAO {
@@ -43,8 +47,26 @@ public class AsistenciasDAO implements IAsistenciasDAO {
     }
 
     @Override
-    public List<Asistencia> consultarTodos() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public List<Asistencia> consultarAsistenciasPorGrupo(Long id_grupo) {
+        List<Asistencia> listaAsistencia = new ArrayList<>();
+        ResultSet result = null;
+        String SQL = "SELECT * FROM asistencias WHERE id_grupo = " + id_grupo.toString() + ";";
+        try {
+            Connection con = conexion.obtenerConexion();
+            PreparedStatement st = con.prepareStatement(SQL);
+            result = st.executeQuery();
+            while (result.next()) {
+                Long id_asistencia = result.getLong("id_asistencia");
+                Long id_alumno = result.getLong("id_asistencia");
+                Date fechaHoraRegistro = result.getDate("fechaHoraRegistro");
+                EstadoAsistencia estado = result.getObject("estado", EstadoAsistencia.class);
+                listaAsistencia.add(new Asistencia(id_asistencia, id_alumno, id_grupo, fechaHoraRegistro, estado));
+            }
+            return listaAsistencia;
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return null;
+        }
     }
 
 }
