@@ -27,18 +27,19 @@ public class main {
             Vector<RemoteDevice> devices = new RemoteDeviceDiscovery().getDevices();
             for (RemoteDevice d : devices) {
                 System.out.println(d.getFriendlyName(true));
+                System.out.println(d.getBluetoothAddress());
             }
-            
+
         } catch (BluetoothStateException ex) {
             Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     private LocalDevice localDevice; // local Bluetooth Manager
     private DiscoveryAgent discoveryAgent; // discovery agent
-    
+
     /**
      * Initialize
      */
@@ -46,18 +47,19 @@ public class main {
         localDevice = null;
         discoveryAgent = null;
         // Retrieve the local device to get to the Bluetooth Manager
-     
-        localDevice = LocalDevice.getLocalDevice();                   
+
+        localDevice = LocalDevice.getLocalDevice();
         // Servers set the discoverable mode to GIAC
-        localDevice.setDiscoverable(DiscoveryAgent.GIAC);                   
+        localDevice.setDiscoverable(DiscoveryAgent.GIAC);
         // Clients retrieve the discovery agent
-        discoveryAgent =  localDevice.getDiscoveryAgent();   
+        discoveryAgent = localDevice.getDiscoveryAgent();
         RemoteDevice[] devices = discoveryAgent.retrieveDevices(0);
         try {
-            System.out.println("remote = " + devices[0].getFriendlyName(true)); 
+            System.out.println("remote = " + devices[0].getFriendlyName(true));
+            System.out.println("remote = " + devices[0].getBluetoothAddress());
         } catch (IOException ex) {
             Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
     }
 }

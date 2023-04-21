@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package com.itson.bluetoothmaven;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -19,8 +20,10 @@ import javax.bluetooth.RemoteDevice;
  *
  * @author gilberto.borrego
  */
-public class frmBlue extends javax.swing.JFrame implements PropertyChangeListener{
+public class frmBlue extends javax.swing.JFrame implements PropertyChangeListener {
+
     MyDiscoveryListener listener;
+
     /**
      * Creates new form frmBlue
      */
@@ -140,6 +143,7 @@ public class frmBlue extends javax.swing.JFrame implements PropertyChangeListene
         for (RemoteDevice device : devices) {
             try {
                 strDevices.add(device.getFriendlyName(true));
+                strDevices.add(device.getBluetoothAddress());
             } catch (IOException ex) {
                 Logger.getLogger(frmBlue.class.getName()).log(Level.SEVERE, null, ex);
             }
