@@ -5,6 +5,7 @@
     <artifactId>asistenciaPersistencia</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
+    
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -17,10 +18,13 @@
             <version>3.8.11.2</version>
         </dependency>
     </dependencies>
+
+    
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <exec.mainClass>implementaciones.AsistenciaPersistencia</exec.mainClass>
     </properties>
+   
 </project>
