@@ -4,20 +4,8 @@
  */
 package formularios;
 
-import java.awt.Graphics;
-import java.awt.Image;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.SwingUtilities;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
-import javax.swing.DefaultCellEditor;
-import javax.swing.ImageIcon;
-import javax.swing.JComboBox;
-import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 
 public class AsistenciaForm extends javax.swing.JFrame {
@@ -78,7 +66,7 @@ public class AsistenciaForm extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         tablaAsistencia = new javax.swing.JTable();
         jButton4 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
+        btnVincular = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
         labelFecha = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
@@ -110,6 +98,7 @@ public class AsistenciaForm extends javax.swing.JFrame {
 
         jComboBox1.setBackground(new java.awt.Color(204, 204, 255));
         jComboBox1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jComboBox1.setForeground(new java.awt.Color(51, 51, 51));
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Semanas", "Semana 1", "Semana 2", "Semana 3", "Semana 4" }));
         jComboBox1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -150,6 +139,7 @@ public class AsistenciaForm extends javax.swing.JFrame {
 
         jButton4.setBackground(new java.awt.Color(204, 255, 204));
         jButton4.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jButton4.setForeground(new java.awt.Color(51, 51, 51));
         jButton4.setText("Guardar");
         jButton4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -157,12 +147,19 @@ public class AsistenciaForm extends javax.swing.JFrame {
             }
         });
 
-        jButton3.setBackground(new java.awt.Color(102, 204, 255));
-        jButton3.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        jButton3.setText("Buscar Dispositivos");
+        btnVincular.setBackground(new java.awt.Color(102, 204, 255));
+        btnVincular.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        btnVincular.setForeground(new java.awt.Color(51, 51, 51));
+        btnVincular.setText("Vincular dispositivos");
+        btnVincular.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnVincularActionPerformed(evt);
+            }
+        });
 
         jButton5.setBackground(new java.awt.Color(255, 102, 102));
         jButton5.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jButton5.setForeground(new java.awt.Color(51, 51, 51));
         jButton5.setText("Eliminar");
         jButton5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -175,6 +172,7 @@ public class AsistenciaForm extends javax.swing.JFrame {
 
         jButton1.setBackground(new java.awt.Color(255, 255, 153));
         jButton1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jButton1.setForeground(new java.awt.Color(51, 51, 51));
         jButton1.setText("Agregar datos");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -252,7 +250,7 @@ public class AsistenciaForm extends javax.swing.JFrame {
                                 .addGap(0, 0, Short.MAX_VALUE)))
                         .addGap(12, 12, 12))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButton3)
+                        .addComponent(btnVincular)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
@@ -285,7 +283,7 @@ public class AsistenciaForm extends javax.swing.JFrame {
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 237, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(34, 34, 34)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton3)
+                    .addComponent(btnVincular)
                     .addComponent(jButton4)
                     .addComponent(jButton5))
                 .addGap(32, 32, 32))
@@ -320,6 +318,12 @@ public class AsistenciaForm extends javax.swing.JFrame {
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jComboBox1ActionPerformed
+
+    private void btnVincularActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVincularActionPerformed
+        // TODO add your handling code here:
+        new VincularForm().setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnVincularActionPerformed
 
     /**
      * @param args the command line arguments
@@ -358,8 +362,8 @@ public class AsistenciaForm extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnVincular;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JComboBox<String> jComboBox1;
