@@ -1,4 +1,4 @@
-package interfaces;
+package interfacescontrol;
 
 import entidades.Asistencia;
 import java.util.List;

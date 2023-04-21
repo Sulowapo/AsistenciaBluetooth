@@ -1,5 +1,6 @@
 package implementaciones;
 
+import entidades.Alumno;
 import entidades.Asistencia;
 import enumeradores.EstadoAsistencia;
 import interfaces.IAsistenciasDAO;
@@ -46,11 +47,33 @@ public class AsistenciasDAO implements IAsistenciasDAO {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
+    public List<Alumno> consultaAlumnosPorGrupo(Long id_grupo){
+        List<Alumno> listaAlumnos = new ArrayList<>();
+        ResultSet result = null;
+        String SQL = "SELECT e.matricula, e.nombre, e.apellido, e.correo FROM relGruposAlumnos g, alumnos e WHERE (g.id_alumno = e.id) AND (g.id_grupo = " + id_grupo.toString() + ");";
+        try {
+            Connection con = conexion.obtenerConexion();
+            PreparedStatement st = con.prepareStatement(SQL);
+            result = st.executeQuery();
+            while (result.next()) {
+                String nombre = result.getString("nombre");
+                String apellido = result.getString("apellido");
+                String matricula = result.getString("matricula");
+                String correo = result.getString("correo");
+                listaAlumnos.add(new Alumno(id_grupo, matricula, correo, nombre, apellido));
+            }
+            return listaAlumnos;
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return null;
+        }
+    }
+    
     @Override
     public List<Asistencia> consultarAsistenciasPorGrupo(Long id_grupo) {
         List<Asistencia> listaAsistencia = new ArrayList<>();
         ResultSet result = null;
-        String SQL = "SELECT * FROM asistencias WHERE id_grupo = " + id_grupo.toString() + ";";
+        String SQL = "SELECT e.matricula, e.nombre, e.apellido, e.correo FROM relGruposAlumnos g, alumnos e WHERE (g.id_alumno = e.id) AND (g.id_grupo = " + id_grupo.toString() + ");";
         try {
             Connection con = conexion.obtenerConexion();
             PreparedStatement st = con.prepareStatement(SQL);

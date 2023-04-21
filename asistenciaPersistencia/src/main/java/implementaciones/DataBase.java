@@ -27,6 +27,7 @@ public class DataBase implements IDataBase {
                       "CREATE TABLE alumnos "
                     + "(id INTEGER PRIMARY KEY AUTOINCREMENT, "
                     + " nombre TEXT NOT NULL, "
+                    + " matricula TEXT NOT NULL, "
                     + " apellido TEXT NOT NULL, "
                     + " correo TEXT, "
                     + " dispositivoBluetoothNombre TEXT, "

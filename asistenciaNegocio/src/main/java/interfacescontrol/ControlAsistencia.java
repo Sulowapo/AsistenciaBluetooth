@@ -1,10 +1,10 @@
 
-package interfaces;
+package interfacescontrol;
 
+import entidades.Alumno;
 import entidades.Asistencia;
 import implementaciones.AsistenciasDAO;
-import enumeradores.EstadoAsistencia;
-import java.util.ArrayList;
+import interfaces.IConexionBD;
 import java.util.List;
 
 public class ControlAsistencia implements IControlAsistencias {
@@ -38,5 +38,9 @@ public class ControlAsistencia implements IControlAsistencias {
     @Override
     public List<Asistencia> consultarAsistenciasPorGrupo(Long id_Grupo) {
         return new AsistenciasDAO(conexion).consultarAsistenciasPorGrupo(id_Grupo);
+    }
+    
+    public List<Alumno> consultarAlumnosPorGrupo(Long id_Grupo) {
+        return new AsistenciasDAO(conexion).consultaAlumnosPorGrupo(id_Grupo);
     }
 }

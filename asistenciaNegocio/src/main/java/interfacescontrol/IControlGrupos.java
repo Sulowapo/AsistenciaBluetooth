@@ -1,4 +1,4 @@
-package interfaces;
+package interfacescontrol;
 
 public interface IControlGrupos {
 

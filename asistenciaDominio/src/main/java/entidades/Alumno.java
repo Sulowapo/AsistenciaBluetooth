@@ -32,6 +32,14 @@ public class Alumno {
         this.dispositivoBluetoothNombre = dispositivoBluetoothNombre;
         this.dispositivoBluetoothDireccion = dispositivoBluetoothDireccion;
     }
+    
+    public Alumno(Long id_alumno, String matricula_alumno, String correo_alumno, String nombre, String apellido) {
+        this.id_alumno = id_alumno;
+        this.matricula_alumno = matricula_alumno;
+        this.correo_alumno = correo_alumno;
+        this.nombre = nombre;
+        this.apellido = apellido;
+    }
 
     public Long getAlumno_id() {
         return id_alumno;
