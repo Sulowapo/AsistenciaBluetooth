@@ -3,18 +3,16 @@ package interfaces;
 import entidades.Asistencia;
 import java.util.List;
 
-/**
- *
- * @author pache
- */
 public interface IControlAsistencias {
 
-    boolean agregar(Asistencia asistencia);
+    public boolean ponerAsistencia(Asistencia asistencia);
 
-    boolean actualizar(Asistencia asistencia);
+    public boolean ponerFalta(Asistencia asistencia);
 
-    boolean eliminar(Long asistencia_id);
+    public boolean ponerJustificacion(Asistencia asistencia);
+    
+    public boolean ponerRetardo(Asistencia asistencia);
 
-    List<Asistencia> consultarTodos();
+    public List<Asistencia> consultarAsistenciasPorGrupo(Long id_Grupo);
 
 }

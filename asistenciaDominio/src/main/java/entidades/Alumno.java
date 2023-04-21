@@ -16,18 +16,21 @@ public class Alumno {
 
     private String apellido;
 
-    private String dispositivoBluetooth;
+    private String dispositivoBluetoothNombre;
 
+    private String dispositivoBluetoothDireccion;
+    
     public Alumno() {
     }
 
-    public Alumno(Long id_alumno, String matricula_alumno, String correo_alumno, String nombre, String apellido, String dispositivoBluetooth) {
+    public Alumno(Long id_alumno, String matricula_alumno, String correo_alumno, String nombre, String apellido, String dispositivoBluetoothNombre, String dispositivoBluetoothDireccion) {
         this.id_alumno = id_alumno;
         this.matricula_alumno = matricula_alumno;
         this.correo_alumno = correo_alumno;
         this.nombre = nombre;
         this.apellido = apellido;
-        this.dispositivoBluetooth = dispositivoBluetooth;
+        this.dispositivoBluetoothNombre = dispositivoBluetoothNombre;
+        this.dispositivoBluetoothDireccion = dispositivoBluetoothDireccion;
     }
 
     public Long getAlumno_id() {
@@ -70,12 +73,20 @@ public class Alumno {
         this.apellido = apellido;
     }
 
-    public String getDispositivoBluetooth() {
-        return dispositivoBluetooth;
+    public String getDispositivoBluetoothNombre() {
+        return dispositivoBluetoothNombre;
     }
 
-    public void setDispositivoBluetooth(String dispositivoBluetooth) {
-        this.dispositivoBluetooth = dispositivoBluetooth;
+    public void setDispositivoBluetoothNombre(String dispositivoBluetoothNombre) {
+        this.dispositivoBluetoothNombre = dispositivoBluetoothNombre;
+    }
+
+    public String getDispositivoBluetoothDireccion() {
+        return dispositivoBluetoothDireccion;
+    }
+
+    public void setDispositivoBluetoothDireccion(String dispositivoBluetoothDireccion) {
+        this.dispositivoBluetoothDireccion = dispositivoBluetoothDireccion;
     }
 
     @Override
