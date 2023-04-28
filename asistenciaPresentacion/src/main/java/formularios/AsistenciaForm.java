@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +19,8 @@ import java.util.logging.Logger;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
@@ -25,22 +29,18 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-
 public class AsistenciaForm extends javax.swing.JFrame {
 
-    private final Object[] HEADER_NAME = new Object[]{"Numero", "ID", "Nombre completo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes"};
-    private DefaultTableModel model = new DefaultTableModel(
-            new Object[][]{},
-            HEADER_NAME);
-
+    private final Object[] HEADER_NAME = new Object[]{"No", "ID", "Nombre completo", "Asistencia"};
+    private DefaultTableModel model = new DefaultTableModel(new Object[][]{}, HEADER_NAME);
 
     public AsistenciaForm() {
         initComponents();
-
         crearTablaCombo();
-
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        LocalDateTime now = LocalDateTime.now();
+        labelFecha.setText(dtf.format(now));
     }
-
 
     private void crearTablaCombo() {
         // Combo box para la columna 3
@@ -54,13 +54,8 @@ public class AsistenciaForm extends javax.swing.JFrame {
         tablaAsistencia.setModel(model);
         tablaAsistencia.setRowHeight(22);//altura de filas
 
-// Establecer los editores de celda para las columnas correspondientes
+        // Establecer los editores de celda para las columnas correspondientes
         tablaAsistencia.getColumnModel().getColumn(3).setCellEditor(new DefaultCellEditor(comboBox1));
-        tablaAsistencia.getColumnModel().getColumn(4).setCellEditor(new DefaultCellEditor(comboBox1));
-        tablaAsistencia.getColumnModel().getColumn(5).setCellEditor(new DefaultCellEditor(comboBox1));
-        tablaAsistencia.getColumnModel().getColumn(6).setCellEditor(new DefaultCellEditor(comboBox1));
-        tablaAsistencia.getColumnModel().getColumn(7).setCellEditor(new DefaultCellEditor(comboBox1));
-
     }
 
     /**
@@ -98,7 +93,7 @@ public class AsistenciaForm extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setSize(new java.awt.Dimension(800, 600));
 
-        jLabel1.setFont(new java.awt.Font("Segoe UI Historic", 1, 36)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Segoe UI Historic", 1, 18)); // NOI18N
         jLabel1.setText("Lista de asistencia");
 
         jLabel3.setBackground(new java.awt.Color(0, 0, 0));
@@ -125,25 +120,25 @@ public class AsistenciaForm extends javax.swing.JFrame {
         tablaAsistencia.setFont(new java.awt.Font("Mongolian Baiti", 0, 15)); // NOI18N
         tablaAsistencia.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, "", "", "", "", "", "", ""},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null}
+                {null, "", "", ""},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
             },
             new String [] {
-                "Numero", "ID", "Nombre completo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes"
+                "Numero", "ID", "Nombre completo", "Asistencia"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -245,72 +240,67 @@ public class AsistenciaForm extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(12, 12, 12)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(jButton1)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 883, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(jLabel4)
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addGroup(layout.createSequentialGroup()
-                                            .addGap(206, 206, 206)
-                                            .addComponent(jLabel1)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addGroup(layout.createSequentialGroup()
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                            .addComponent(agregarLista, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addGap(111, 111, 111)
-                                            .addComponent(jLabel5)
-                                            .addGap(29, 29, 29)
-                                            .addComponent(labelFecha)))
-                                    .addGap(147, 147, 147)))
-                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 418, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(btnVincular)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(432, 432, 432)
                         .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(jButton5)
-                        .addContainerGap())))
+                        .addComponent(jButton5))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 883, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createSequentialGroup()
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 418, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel1))
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(147, 147, 147))
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(jLabel4)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addGap(228, 228, 228)
+                            .addComponent(agregarLista, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(118, 118, 118)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(jLabel5)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(labelFecha)
+                                    .addGap(92, 92, 92))
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(jButton1)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE))))))
+                .addGap(0, 73, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addGap(25, 25, 25)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(60, 60, 60)
                         .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel1))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(25, 25, 25)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
                         .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel5)
-                            .addComponent(labelFecha))
-                        .addGap(4, 4, 4)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton1))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(agregarLista, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
+                        .addComponent(jLabel1)))
+                .addGap(24, 24, 24)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel5)
+                    .addComponent(labelFecha))
+                .addGap(4, 4, 4)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton1)
+                    .addComponent(agregarLista))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 41, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 237, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(34, 34, 34)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -319,6 +309,8 @@ public class AsistenciaForm extends javax.swing.JFrame {
                     .addComponent(jButton5))
                 .addGap(32, 32, 32))
         );
+
+        labelFecha.getAccessibleContext().setAccessibleName("fechaAsistenciaLabel");
 
         pack();
         setLocationRelativeTo(null);
@@ -329,11 +321,10 @@ public class AsistenciaForm extends javax.swing.JFrame {
     }//GEN-LAST:event_jComboBox2ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-
         model = new DefaultTableModel(new Object[][]{
-            {"1", "00002346677", "Juan Perez", "Presente", "------", "------", "------", "------"},
-            {"2", "00000326744", "Jose Sanchez", "Falta", "------", "------", "------", "------"},
-            {"3", "0002243713", "Samuel Orrantia", "Retardo", "------", "------", "------", "------"},},
+            {"1", "00002346677", "Juan Perez", "Presente"},
+            {"2", "00000326744", "Jose Sanchez", "Falta"},
+            {"3", "0002243713", "Samuel Orrantia", "Retardo"},},
                 HEADER_NAME);
         crearTablaCombo();
     }//GEN-LAST:event_jButton1ActionPerformed
@@ -357,54 +348,63 @@ public class AsistenciaForm extends javax.swing.JFrame {
     }//GEN-LAST:event_btnVincularActionPerformed
 
     private void agregarListaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_agregarListaActionPerformed
-        String fileGrupo;
         final JFileChooser fc = new JFileChooser();
         fc.setDialogTitle("Abrir lista de alumnos");
-        //FileFilter filter = new FileNameExtensionFilter("Files", ".xlsx");
-        //fc.addChoosableFileFilter(filter);
-        fc.setAcceptAllFileFilterUsed(false);
         fc.setVisible(true);
+
+        String fileGrupo;
         int result = fc.showOpenDialog(this);
+
         if (result == JFileChooser.APPROVE_OPTION) {
             fileGrupo = fc.getSelectedFile().getAbsolutePath();
         } else {
             return;
         }
-        System.out.println(fileGrupo);
+
         try {
             FileInputStream file = new FileInputStream(new File(fileGrupo));
             Workbook workbook = new XSSFWorkbook(file);
             Sheet sheet = workbook.getSheetAt(0);
-            Map<Integer, List<String>> data = new HashMap<>();
-            int i = 0;
-            for (Row row: sheet){
-                data.put(i, new ArrayList<String>());
-                for (Cell cell: row){
-                    switch(cell.getCellType()){
-                        case STRING: data.get(new Integer(i)).add(cell.getRichStringCellValue().getString()); break;
-                        case NUMERIC: 
-                            if(DateUtil.isCellDateFormatted(cell)){
-                                data.get(i).add(cell.getDateCellValue() + "");
-                            } else {
-                                data.get(i).add(cell.getNumericCellValue() + "");
-                            }
-                                break;
-                        default: data.get(new Integer(i)).add("");
+            ArrayList<SheetExtractModel> data = new ArrayList<>();
+
+            for (Row row : sheet) {
+
+                if (row.getRowNum() < 10) {
+                    continue;
+                }
+
+                SheetExtractModel model = new SheetExtractModel();
+
+                for (Cell cell : row) {
+
+                    /// ID de alumno
+                    if (cell.getColumnIndex() == 0) {
+                        model.id = cell.getNumericCellValue();
+                    }
+
+                    /// Nombre de alumno
+                    if (cell.getColumnIndex() == 1) {
+                        model.name = cell.toString();
                     }
                 }
-            }
-            List<String> list = data.get(0);
-            for (int j = 0; j < list.size(); j+= 2) {
-                model.addRow(new Object []{j,list.get(j), list.get(j+1),"------", "------", "------", "------", "------"});
+                data.add(model);
             }
 
-        crearTablaCombo();
+            for (int j = 0; j < data.size(); j++) {
+                if (data.get(j).name.isBlank()) {
+                    continue;
+                }
+
+                model.addRow(new Object[]{j, data.get(j).getId(), data.get(j).name, "-------"});
+            }
+
+            crearTablaCombo();
+
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(AsistenciaForm.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("");
         } catch (IOException ex) {
-            Logger.getLogger(AsistenciaForm.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("");
         }
-        
     }//GEN-LAST:event_agregarListaActionPerformed
 
     /**
