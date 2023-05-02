@@ -10,6 +10,8 @@ public interface IControlAsistencias {
     public boolean actualizarAsistencia(Asistencia asistencia);
 
     public List<Asistencia> consultarAsistenciasPorGrupo(Long id_Grupo);
+    
+    public List<Asistencia> consultarAsistenciasGrupoPorFecha(Long id_grupo, String fecha);
 
     public boolean verificarExistenciaAsistencia(Long id_Grupo, String fecha);
 }

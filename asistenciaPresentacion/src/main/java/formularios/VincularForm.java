@@ -1,7 +1,6 @@
 package formularios;
 
 import funciones.MyDiscoveryListener;
-import implementaciones.ConexionBD;
 import interfaces.IConexionBD;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -38,8 +37,8 @@ public class VincularForm extends javax.swing.JFrame implements PropertyChangeLi
     private void initComponents() {
 
         id_Label = new javax.swing.JLabel();
-        id_TextField = new javax.swing.JTextField();
-        vincular_Button = new javax.swing.JButton();
+        txtId = new javax.swing.JTextField();
+        btnVincular = new javax.swing.JButton();
         btnSalir = new javax.swing.JButton();
         btn_Buscar = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -54,19 +53,20 @@ public class VincularForm extends javax.swing.JFrame implements PropertyChangeLi
         id_Label.setFont(new java.awt.Font("Dialog", 1, 22)); // NOI18N
         id_Label.setText("ID");
 
-        id_TextField.setPreferredSize(new java.awt.Dimension(5, 20));
-        id_TextField.addActionListener(new java.awt.event.ActionListener() {
+        txtId.setPreferredSize(new java.awt.Dimension(5, 20));
+        txtId.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                id_TextFieldActionPerformed(evt);
+                txtIdActionPerformed(evt);
             }
         });
 
-        vincular_Button.setBackground(new java.awt.Color(102, 204, 255));
-        vincular_Button.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
-        vincular_Button.setText("Vincular");
-        vincular_Button.addActionListener(new java.awt.event.ActionListener() {
+        btnVincular.setBackground(new java.awt.Color(102, 204, 255));
+        btnVincular.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        btnVincular.setForeground(new java.awt.Color(51, 51, 51));
+        btnVincular.setText("Vincular");
+        btnVincular.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                vincular_ButtonActionPerformed(evt);
+                btnVincularActionPerformed(evt);
             }
         });
 
@@ -80,6 +80,7 @@ public class VincularForm extends javax.swing.JFrame implements PropertyChangeLi
 
         btn_Buscar.setBackground(new java.awt.Color(102, 204, 255));
         btn_Buscar.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        btn_Buscar.setForeground(new java.awt.Color(51, 51, 51));
         btn_Buscar.setText("Buscar Dispositivo");
         btn_Buscar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -107,12 +108,12 @@ public class VincularForm extends javax.swing.JFrame implements PropertyChangeLi
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(id_Label, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(id_TextField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addComponent(txtId, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 20, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(vincular_Button, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(btnVincular, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(30, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -121,8 +122,8 @@ public class VincularForm extends javax.swing.JFrame implements PropertyChangeLi
                 .addGap(20, 20, 20)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                     .addComponent(id_Label)
-                    .addComponent(id_TextField, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(vincular_Button, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtId, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnVincular, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 151, Short.MAX_VALUE)
@@ -138,13 +139,13 @@ public class VincularForm extends javax.swing.JFrame implements PropertyChangeLi
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void id_TextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_id_TextFieldActionPerformed
+    private void txtIdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtIdActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_id_TextFieldActionPerformed
+    }//GEN-LAST:event_txtIdActionPerformed
 
-    private void vincular_ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vincular_ButtonActionPerformed
+    private void btnVincularActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVincularActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_vincular_ButtonActionPerformed
+    }//GEN-LAST:event_btnVincularActionPerformed
 
     private void btnSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalirActionPerformed
         new AsistenciaForm(id_grupo, conexion).setVisible(true);
@@ -198,14 +199,14 @@ public class VincularForm extends javax.swing.JFrame implements PropertyChangeLi
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnSalir;
+    private javax.swing.JButton btnVincular;
     private javax.swing.JButton btn_Buscar;
     private javax.swing.JLabel id_Label;
-    private javax.swing.JTextField id_TextField;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JList<String> lstDevices;
     private javax.swing.JList<String> lstDirection;
-    private javax.swing.JButton vincular_Button;
+    private javax.swing.JTextField txtId;
     // End of variables declaration//GEN-END:variables
 
     @Override

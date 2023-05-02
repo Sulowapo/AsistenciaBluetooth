@@ -10,8 +10,14 @@ import java.util.ArrayList;
 import funciones.Tiempo;
 import entidades.Alumno;
 import entidades.Asistencia;
+import funciones.RemoteDeviceDiscovery;
 import interfacescontrol.IControlAlumnos;
 import java.util.List;
+import java.util.Objects;
+import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.bluetooth.RemoteDevice;
 import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -21,11 +27,14 @@ public class AsistenciaForm extends javax.swing.JFrame {
     private IConexionBD conexion;
     private Long id_grupo;
     private List<Alumno> listaAlumnos = new ArrayList<>();
+    private boolean asistenciaBluetooth = false;
+    Thread hilo;
 
     public AsistenciaForm(Long id_grupo, IConexionBD conexion) {
         initComponents();
         this.conexion = conexion;
         this.id_grupo = id_grupo;
+        this.hilo = new Thread(verificadorBluetooth);
         asignarFecha();
         generarTabla();
     }
@@ -40,12 +49,12 @@ public class AsistenciaForm extends javax.swing.JFrame {
         modeloTabla.setRowCount(0);
         IControlAlumnos controlAlumnos = new ControlAlumnos(conexion);
         listaAlumnos = controlAlumnos.consultarAlumnosPorGrupo(id_grupo);
+        List<Asistencia> listaAsistencia = new ControlAsistencia(conexion).consultarAsistenciasGrupoPorFecha(id_grupo, labelFecha.getText());
         JComboBox comboBox1 = new JComboBox();
         comboBox1.addItem("Presente");
         comboBox1.addItem("Retardo");
         comboBox1.addItem("Falta");
         comboBox1.addItem("Justificado");
-        comboBox1.setSelectedIndex(1);
 
         //Altura de las filas de la tabla
         tablaAsistencia.setRowHeight(22);
@@ -79,6 +88,18 @@ public class AsistenciaForm extends javax.swing.JFrame {
         tablaAsistencia.getColumnModel().getColumn(3).setMinWidth(300);
         tablaAsistencia.getColumnModel().getColumn(3).setResizable(false);
         tablaAsistencia.getColumnModel().getColumn(4).setCellEditor(new DefaultCellEditor(comboBox1));
+
+        if (!listaAsistencia.isEmpty()) {
+            for (Asistencia asistencia : listaAsistencia) {
+                i = 0;
+                for (Alumno alumno : listaAlumnos) {
+                    if (Objects.equals(alumno.getId_Alumno(), asistencia.getId_alumno())) {
+                        tablaAsistencia.setValueAt(asistencia.getEstado(), i, 4);
+                    }
+                    i++;
+                }
+            }
+        }
     }
 
     public List<Asistencia> obtenerAsistencias() {
@@ -101,6 +122,29 @@ public class AsistenciaForm extends javax.swing.JFrame {
         return new ControlAsistencia(conexion).verificarExistenciaAsistencia(id_grupo, labelFecha.getText());
     }
 
+    Runnable verificadorBluetooth = new Runnable() {
+        @Override
+        public void run() {
+            while (asistenciaBluetooth) {
+                try {
+                    Vector<RemoteDevice> dispositivosDescubiertos = new RemoteDeviceDiscovery().getDevices();
+                    int i = 0;
+                    for (Alumno alumno : listaAlumnos) {
+                        for (RemoteDevice dispositivosDescubierto : dispositivosDescubiertos) {
+                            if (alumno.getDispositivoBluetoothDireccion() == dispositivosDescubierto.getBluetoothAddress()) {
+                                tablaAsistencia.setValueAt("Presente", i, 4);
+                            }
+                        }
+                        i++;
+                    }
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -116,7 +160,7 @@ public class AsistenciaForm extends javax.swing.JFrame {
         jComboBox2 = new javax.swing.JComboBox<>();
         jPanel1 = new javax.swing.JPanel();
         btnSalir = new javax.swing.JButton();
-        jToggleButton1 = new javax.swing.JToggleButton();
+        btnAsistenciaBluetooth = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenu2 = new javax.swing.JMenu();
@@ -176,7 +220,7 @@ public class AsistenciaForm extends javax.swing.JFrame {
         tablaAsistencia.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
         jScrollPane1.setViewportView(tablaAsistencia);
 
-        btnGuardar.setBackground(new java.awt.Color(204, 255, 204));
+        btnGuardar.setBackground(new java.awt.Color(102, 255, 102));
         btnGuardar.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         btnGuardar.setForeground(new java.awt.Color(0, 0, 0));
         btnGuardar.setText("Guardar");
@@ -202,11 +246,6 @@ public class AsistenciaForm extends javax.swing.JFrame {
 
         jComboBox2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "AR122", "UTS77", "AG132", "BRN11" }));
-        jComboBox2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboBox2ActionPerformed(evt);
-            }
-        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -229,13 +268,13 @@ public class AsistenciaForm extends javax.swing.JFrame {
             }
         });
 
-        jToggleButton1.setBackground(new java.awt.Color(0, 153, 255));
-        jToggleButton1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jToggleButton1.setForeground(new java.awt.Color(0, 0, 0));
-        jToggleButton1.setText("Activar asistencia por BLUETOOTH");
-        jToggleButton1.addActionListener(new java.awt.event.ActionListener() {
+        btnAsistenciaBluetooth.setBackground(new java.awt.Color(51, 153, 255));
+        btnAsistenciaBluetooth.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        btnAsistenciaBluetooth.setForeground(new java.awt.Color(0, 0, 0));
+        btnAsistenciaBluetooth.setText("Activar asistencia por Bluetooth");
+        btnAsistenciaBluetooth.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jToggleButton1ActionPerformed(evt);
+                btnAsistenciaBluetoothActionPerformed(evt);
             }
         });
 
@@ -274,8 +313,8 @@ public class AsistenciaForm extends javax.swing.JFrame {
                         .addGap(8, 8, 8))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(btnVincular, javax.swing.GroupLayout.PREFERRED_SIZE, 241, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jToggleButton1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnAsistenciaBluetooth, javax.swing.GroupLayout.PREFERRED_SIZE, 332, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(btnGuardar, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 6, Short.MAX_VALUE))
@@ -309,22 +348,16 @@ public class AsistenciaForm extends javax.swing.JFrame {
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 237, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(btnGuardar, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(btnVincular, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jToggleButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(btnVincular, javax.swing.GroupLayout.DEFAULT_SIZE, 41, Short.MAX_VALUE)
+                            .addComponent(btnAsistenciaBluetooth, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnGuardar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(8, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
-
-    private void jComboBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox2ActionPerformed
-        // TODO add your handling code here:
-
-    }//GEN-LAST:event_jComboBox2ActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
         List<Asistencia> listaAsistencia = obtenerAsistencias();
@@ -362,11 +395,22 @@ public class AsistenciaForm extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_btnSalirActionPerformed
 
-    private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
+    private void btnAsistenciaBluetoothActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAsistenciaBluetoothActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jToggleButton1ActionPerformed
+        if (asistenciaBluetooth == false) {
+            hilo.start();
+            asistenciaBluetooth = true;
+        } else {
+            try {
+                hilo.join();
+                asistenciaBluetooth = false;
+            } catch (InterruptedException ex) {
+            }
+        }
+    }//GEN-LAST:event_btnAsistenciaBluetoothActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAsistenciaBluetooth;
     private javax.swing.JButton btnGuardar;
     private javax.swing.JButton btnSalir;
     private javax.swing.JButton btnVincular;
@@ -380,7 +424,6 @@ public class AsistenciaForm extends javax.swing.JFrame {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JLabel labelFecha;
     private javax.swing.JTable tablaAsistencia;
     // End of variables declaration//GEN-END:variables
