@@ -9,36 +9,43 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DataBase implements IDataBase {
 
     private IConexionBD conexion;
+    Connection con;
 
     public DataBase(IConexionBD conexion) {
         this.conexion = conexion;
     }
-    
+
     @Override
-    public void verificarBaseDeDatos(){
-        File file = new File("src/main/java/asistencia.db");
- 
+    public void verificarBaseDeDatos() {
         try {
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            if (br.readLine() == null) {
-                crearBaseDeDatos();
+            con = conexion.obtenerConexion();
+            File file = new File("src/main/java/asistencia.db");
+
+            try {
+                BufferedReader br = new BufferedReader(new FileReader(file));
+                if (br.readLine() == null) {
+                    crearBaseDeDatos();
+                }
+            } catch (IOException e) {
+                System.out.println("No se pudo verificar la base de datos");
             }
-        } catch (IOException e) {
-            System.out.println("No se pudo verificar la base de datos");
+        } catch (SQLException ex) {
+            Logger.getLogger(DataBase.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     private boolean crearBaseDeDatos() {
         try {
-            Connection con = conexion.obtenerConexion();
             Statement stmt = con.createStatement();
-            String sql =
-                    //Tabla de alumnos
-                      "CREATE TABLE alumnos "
+            String sql
+                    = //Tabla de alumnos
+                    "CREATE TABLE alumnos "
                     + "(id INTEGER PRIMARY KEY AUTOINCREMENT, "
                     + " nombre TEXT NOT NULL, "
                     + " matricula TEXT NOT NULL, "
@@ -76,8 +83,7 @@ public class DataBase implements IDataBase {
             return false;
         }
     }
-    
-    
+
 //    public static void main(String[] args) {
 //       new DataBase(new ConexionBD()).crearBaseDeDatos();
 //    }

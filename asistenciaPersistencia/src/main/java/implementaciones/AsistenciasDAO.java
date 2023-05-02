@@ -24,7 +24,7 @@ public class AsistenciasDAO implements IAsistenciasDAO {
     public boolean agregar(Asistencia asistencia) {
         try {
             con = conexion.obtenerConexion();
-            PreparedStatement st = con.prepareStatement("INSERT INTO asistencias (id_alumano, id_grupo, fechaHoraRegistro, estado) VALUES (?,?,?,?)");
+            PreparedStatement st = con.prepareStatement("INSERT INTO asistencias (id_alumno, id_grupo, fechaHoraRegistro, estado) VALUES (?,?,?,?)");
             st.setString(1, asistencia.getId_alumno().toString());
             st.setString(2, asistencia.getId_grupo().toString());
             st.setString(3, asistencia.getFechaHoraRegistro());

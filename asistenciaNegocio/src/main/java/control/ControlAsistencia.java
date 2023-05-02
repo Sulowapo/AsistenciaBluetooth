@@ -33,7 +33,7 @@ public class ControlAsistencia implements IControlAsistencias {
     @Override
     public boolean verificarExistenciaAsistencia(Long id_Grupo, String fecha) {
         List<Asistencia> listaAsistencia = dao.consultarAsistenciasPorFechaYGrupo(fecha, id_Grupo);
-        return listaAsistencia == null;
+        return listaAsistencia.size() == 0;
     }
 
 }
