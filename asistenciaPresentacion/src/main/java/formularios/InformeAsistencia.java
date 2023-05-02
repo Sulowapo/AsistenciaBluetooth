@@ -167,7 +167,7 @@ public class InformeAsistencia extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalirActionPerformed
-        new Menu(conexion).setVisible(true);
+        new MenuForm(conexion).setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnSalirActionPerformed
 
