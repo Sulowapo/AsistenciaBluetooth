@@ -15,8 +15,6 @@ import interfacescontrol.IControlAlumnos;
 import java.util.List;
 import java.util.Objects;
 import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.bluetooth.RemoteDevice;
 import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
@@ -28,7 +26,8 @@ public class AsistenciaForm extends javax.swing.JFrame {
     private Long id_grupo;
     private List<Alumno> listaAlumnos = new ArrayList<>();
     private boolean asistenciaBluetooth = false;
-    Thread hilo;
+    private Thread hilo;
+    private Vector<RemoteDevice> dispositivosDescubiertos;
 
     public AsistenciaForm(Long id_grupo, IConexionBD conexion) {
         initComponents();
@@ -127,11 +126,11 @@ public class AsistenciaForm extends javax.swing.JFrame {
         public void run() {
             while (asistenciaBluetooth) {
                 try {
-                    Vector<RemoteDevice> dispositivosDescubiertos = new RemoteDeviceDiscovery().getDevices();
+                    dispositivosDescubiertos = new RemoteDeviceDiscovery().getDevices();
                     int i = 0;
                     for (Alumno alumno : listaAlumnos) {
                         for (RemoteDevice dispositivosDescubierto : dispositivosDescubiertos) {
-                            if (alumno.getDispositivoBluetoothDireccion() == dispositivosDescubierto.getBluetoothAddress()) {
+                            if (alumno.getDispositivoBluetoothDireccion() == null ? dispositivosDescubierto.getBluetoothAddress() == null : alumno.getDispositivoBluetoothDireccion().equals(dispositivosDescubierto.getBluetoothAddress())) {
                                 tablaAsistencia.setValueAt("Presente", i, 4);
                             }
                         }
@@ -139,7 +138,6 @@ public class AsistenciaForm extends javax.swing.JFrame {
                     }
                     Thread.sleep(10000);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
                 }
             }
         }
