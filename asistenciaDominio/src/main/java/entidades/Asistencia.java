@@ -1,4 +1,3 @@
-
 package entidades;
 
 import enumeradores.EstadoAsistencia;
@@ -12,15 +11,22 @@ public class Asistencia {
 
     private Long id_grupo;
 
-    private Date fechaHoraRegistro;
+    private String fechaHoraRegistro;
 
-    private EstadoAsistencia estado;
+    private String estado;
 
     public Asistencia() {
     }
 
-    public Asistencia(Long id_asistencia, Long id_alumno, Long id_grupo, Date fechaHoraRegistro, EstadoAsistencia estado) {
+    public Asistencia(Long id_asistencia, Long id_alumno, Long id_grupo, String fechaHoraRegistro, String estado) {
         this.id_asistencia = id_asistencia;
+        this.id_alumno = id_alumno;
+        this.id_grupo = id_grupo;
+        this.fechaHoraRegistro = fechaHoraRegistro;
+        this.estado = estado;
+    }
+
+    public Asistencia(Long id_alumno, Long id_grupo, String fechaHoraRegistro, String estado) {
         this.id_alumno = id_alumno;
         this.id_grupo = id_grupo;
         this.fechaHoraRegistro = fechaHoraRegistro;
@@ -51,19 +57,19 @@ public class Asistencia {
         this.id_grupo = id_grupo;
     }
 
-    public Date getFechaHoraRegistro() {
+    public String getFechaHoraRegistro() {
         return fechaHoraRegistro;
     }
 
-    public void setFechaHoraRegistro(Date fechaHoraRegistro) {
+    public void setFechaHoraRegistro(String fechaHoraRegistro) {
         this.fechaHoraRegistro = fechaHoraRegistro;
     }
 
-    public EstadoAsistencia getEstado() {
+    public String getEstado() {
         return estado;
     }
 
-    public void setEstado(EstadoAsistencia estado) {
+    public void setEstado(String estado) {
         this.estado = estado;
     }
 

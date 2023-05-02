@@ -1,11 +1,12 @@
 package implementaciones;
 
-import entidades.Asistencia;
 import interfaces.IConexionBD;
 import interfaces.IDataBase;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -16,9 +17,22 @@ public class DataBase implements IDataBase {
     public DataBase(IConexionBD conexion) {
         this.conexion = conexion;
     }
-
+    
     @Override
-    public boolean crearBaseDeDatos() {
+    public void verificarBaseDeDatos(){
+        File file = new File("src/main/java/asistencia.db");
+ 
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            if (br.readLine() == null) {
+                crearBaseDeDatos();
+            }
+        } catch (IOException e) {
+            System.out.println("No se pudo verificar la base de datos");
+        }
+    }
+    
+    private boolean crearBaseDeDatos() {
         try {
             Connection con = conexion.obtenerConexion();
             Statement stmt = con.createStatement();
@@ -63,7 +77,8 @@ public class DataBase implements IDataBase {
         }
     }
     
-    public static void main(String[] args) {
-       new DataBase(new ConexionBD()).crearBaseDeDatos();
-    }
+    
+//    public static void main(String[] args) {
+//       new DataBase(new ConexionBD()).crearBaseDeDatos();
+//    }
 }

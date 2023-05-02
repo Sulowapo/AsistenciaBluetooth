@@ -9,4 +9,5 @@ public interface IAsistenciasDAO {
     public boolean editar(Asistencia asistencia);
     public boolean eliminar(Asistencia asistencia);
     public List<Asistencia> consultarAsistenciasPorGrupo(Long id_grupo);
+    public List<Asistencia> consultarAsistenciasPorFechaYGrupo(String fecha, Long id_Grupo);
 }

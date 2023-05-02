@@ -1,104 +1,131 @@
 package formularios;
 
-import entidades.Alumno;
-import implementaciones.ConexionBD;
-//import interfacescontrol.ControlAsistencia;
-import interfaces.IConexionBD;
-import java.util.ArrayList;
-import java.util.List;
-import javax.swing.DefaultCellEditor;
-import javax.swing.JComboBox;
+import control.ControlAlumnos;
+import control.ControlAsistencia;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.DefaultCellEditor;
+import interfaces.IConexionBD;
+import javax.swing.JComboBox;
+import java.util.ArrayList;
+import funciones.Tiempo;
+import entidades.Alumno;
+import entidades.Asistencia;
+import implementaciones.ConexionBD;
+import interfacescontrol.IControlAlumnos;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 
 public class AsistenciaForm extends javax.swing.JFrame {
 
-//    private ControlAsistencia controlAsistencia = new ControlAsistencia(new ConexionBD());
-    private final Object[] HEADER_NAME = new Object[]{"Numero", "ID", "Nombre completo", "Correo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes"};
-    private DefaultTableModel model = new DefaultTableModel(
-            new Object[][]{},
-            HEADER_NAME);
-    Tiempo time = new Tiempo();
-
+    private IConexionBD conexion;
+    private Long id_grupo;
     private List<Alumno> listaAlumnos = new ArrayList<>();
 
-//    private IConexionBD conexion;
-    public AsistenciaForm() {
-//        this.conexion = new ConexionBD();
+    public AsistenciaForm(Long id_grupo, IConexionBD conexion) {
         initComponents();
-        mostrarTiempo();
-        crearTablaCombo();
-//        actualizarTabla();
+        this.conexion = conexion;
+        this.id_grupo = id_grupo;
+        asignarFecha();
+        generarTabla();
     }
 
-    public void mostrarTiempo() {
-        labelFecha.setText(time.fechacomp);
+    private void asignarFecha() {
+        Tiempo time = new Tiempo();
+        this.labelFecha.setText(time.getFecha());
     }
 
-    private void crearTablaCombo() {
-        // Combo box para la columna 3
+    private void generarTabla() {
+        DefaultTableModel modeloTabla = (DefaultTableModel) this.tablaAsistencia.getModel();
+        modeloTabla.setRowCount(0);
+        IControlAlumnos controlAlumnos = new ControlAlumnos(conexion);
+        listaAlumnos = controlAlumnos.consultarAlumnosPorGrupo(id_grupo);
         JComboBox comboBox1 = new JComboBox();
-        comboBox1.addItem("-----");
         comboBox1.addItem("Presente");
         comboBox1.addItem("Retardo");
         comboBox1.addItem("Falta");
         comboBox1.addItem("Justificado");
+        comboBox1.setSelectedIndex(1);
 
-        //se agrega model al JTable
-        tablaAsistencia.setModel(model);
-        tablaAsistencia.setRowHeight(22);//altura de filas
+        //Altura de las filas de la tabla
+        tablaAsistencia.setRowHeight(22);
 
-// Establecer los editores de celda para las columnas correspondientes
+        //Centrar datos de columnas
+        DefaultTableCellRenderer tcr = new DefaultTableCellRenderer();
+        tcr.setHorizontalAlignment(SwingConstants.CENTER);
+        tablaAsistencia.getColumnModel().getColumn(0).setCellRenderer(tcr);
+        tablaAsistencia.getColumnModel().getColumn(4).setCellRenderer(tcr);
+
+        int i = 1;
+        for (Alumno alumno : listaAlumnos) {
+            modeloTabla.addRow(new Object[]{i,
+                alumno.getMatricula_alumno(),
+                alumno.getApellido() + " " + alumno.getNombre(),
+                alumno.getCorreo_alumno()
+            });
+            i++;
+        }
+
+        System.out.println("casi modelando");
+        tablaAsistencia.setModel(modeloTabla);
+        tablaAsistencia.getColumnModel().getColumn(0).setMaxWidth(70);
+        tablaAsistencia.getColumnModel().getColumn(0).setResizable(false);
+        tablaAsistencia.getColumnModel().getColumn(1).setMaxWidth(100);
+        tablaAsistencia.getColumnModel().getColumn(1).setMinWidth(100);
+        tablaAsistencia.getColumnModel().getColumn(1).setResizable(false);
+        tablaAsistencia.getColumnModel().getColumn(2).setMaxWidth(300);
+        tablaAsistencia.getColumnModel().getColumn(2).setMinWidth(300);
+        tablaAsistencia.getColumnModel().getColumn(2).setResizable(false);
+        tablaAsistencia.getColumnModel().getColumn(3).setMaxWidth(300);
+        tablaAsistencia.getColumnModel().getColumn(3).setMinWidth(300);
+        tablaAsistencia.getColumnModel().getColumn(3).setResizable(false);
         tablaAsistencia.getColumnModel().getColumn(4).setCellEditor(new DefaultCellEditor(comboBox1));
-        tablaAsistencia.getColumnModel().getColumn(5).setCellEditor(new DefaultCellEditor(comboBox1));
-        tablaAsistencia.getColumnModel().getColumn(6).setCellEditor(new DefaultCellEditor(comboBox1));
-        tablaAsistencia.getColumnModel().getColumn(7).setCellEditor(new DefaultCellEditor(comboBox1));
-        tablaAsistencia.getColumnModel().getColumn(8).setCellEditor(new DefaultCellEditor(comboBox1));
-
     }
 
-//    private void actualizarTabla(){
-//        DefaultTableModel modeloTabla = (DefaultTableModel) this.tablaAsistencia.getModel();
-//        modeloTabla.setRowCount(0);
-//        listaAlumnos = controlAsistencia.consultarAlumnosPorGrupo(Long.valueOf("1"));
-//        int i = 1;
-//        listaAlumnos.forEach((Alumno alumno) -> {
-//            modeloTabla.addRow(new Object[]{ i,
-//                alumno.getMatricula_alumno(),
-//                alumno.getNombre() + " " + alumno.getApellido(),
-//                alumno.getCorreo_alumno()
-//            });
-//        });
-//        tablaAsistencia.setModel(modeloTabla);
-//    }
+    public List<Asistencia> obtenerAsistencias() {
+        DefaultTableModel modelo = (DefaultTableModel) this.tablaAsistencia.getModel();
+        List<Asistencia> listaAsistencias = new ArrayList<>();
+        String estado;
+        for (int i = 0; i < modelo.getRowCount(); i++) {
+            Long id_Alumno = listaAlumnos.get(i).getId_Alumno();
+            if (modelo.getValueAt(i, 4) == null) {
+                estado = "Falta";
+            } else {
+                estado = modelo.getValueAt(i, 4).toString();
+            }
+            listaAsistencias.add(new Asistencia(id_Alumno, id_grupo, labelFecha.getText(), estado));
+        }
+        return listaAsistencias;
+    }
+    
+    public boolean verificarRegistroAsistencia(){
+        return new ControlAsistencia(conexion).verificarExistenciaAsistencia(id_grupo, labelFecha.getText());
+    }
+
     /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
+     * This method is called from within the constructor to initialize the form. WARNING: Do NOT modify this code. The content of this method is always regenerated by the Form Editor.
      */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel2 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        cbSemana = new javax.swing.JComboBox<>();
         jScrollPane1 = new javax.swing.JScrollPane();
         tablaAsistencia = new javax.swing.JTable();
         btnGuardar = new javax.swing.JButton();
         btnVincular = new javax.swing.JButton();
         labelFecha = new javax.swing.JLabel();
-        btnCargar = new javax.swing.JButton();
         jComboBox2 = new javax.swing.JComboBox<>();
         jPanel1 = new javax.swing.JPanel();
         btnSalir = new javax.swing.JButton();
+        jToggleButton1 = new javax.swing.JToggleButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenu2 = new javax.swing.JMenu();
         jMenu3 = new javax.swing.JMenu();
-
-        jLabel2.setText("jLabel2");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Registrar Asistencia");
@@ -112,53 +139,51 @@ public class AsistenciaForm extends javax.swing.JFrame {
         jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel4.setText("Curso/Nivel");
 
-        jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel5.setText("Fecha");
-
-        cbSemana.setBackground(new java.awt.Color(204, 204, 255));
-        cbSemana.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        cbSemana.setForeground(new java.awt.Color(51, 51, 51));
-        cbSemana.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Semanas", "Semana 1", "Semana 2", "Semana 3", "Semana 4" }));
-        cbSemana.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cbSemanaActionPerformed(evt);
-            }
-        });
 
         tablaAsistencia.setFont(new java.awt.Font("Mongolian Baiti", 0, 15)); // NOI18N
         tablaAsistencia.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, "", "", "", "", "", "", ""},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null}
+                {null, "", "", "", ""},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
             },
             new String [] {
-                "Numero", "ID", "Nombre completo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes"
+                "Numero", "ID", "Nombre completo", "Correo", "Asistencia"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, true
             };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
             }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
         });
         tablaAsistencia.setToolTipText("");
+        tablaAsistencia.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
         jScrollPane1.setViewportView(tablaAsistencia);
 
         btnGuardar.setBackground(new java.awt.Color(204, 255, 204));
         btnGuardar.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        btnGuardar.setForeground(new java.awt.Color(51, 51, 51));
+        btnGuardar.setForeground(new java.awt.Color(0, 0, 0));
         btnGuardar.setText("Guardar");
         btnGuardar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -166,9 +191,9 @@ public class AsistenciaForm extends javax.swing.JFrame {
             }
         });
 
-        btnVincular.setBackground(new java.awt.Color(102, 204, 255));
+        btnVincular.setBackground(new java.awt.Color(153, 153, 255));
         btnVincular.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        btnVincular.setForeground(new java.awt.Color(51, 51, 51));
+        btnVincular.setForeground(new java.awt.Color(0, 0, 0));
         btnVincular.setText("Vincular dispositivos");
         btnVincular.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -176,18 +201,9 @@ public class AsistenciaForm extends javax.swing.JFrame {
             }
         });
 
-        labelFecha.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        labelFecha.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        labelFecha.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         labelFecha.setText("---");
-
-        btnCargar.setBackground(new java.awt.Color(255, 255, 153));
-        btnCargar.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        btnCargar.setForeground(new java.awt.Color(51, 51, 51));
-        btnCargar.setText("Cargar datos");
-        btnCargar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnCargarActionPerformed(evt);
-            }
-        });
 
         jComboBox2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "AR122", "UTS77", "AG132", "BRN11" }));
@@ -210,11 +226,21 @@ public class AsistenciaForm extends javax.swing.JFrame {
 
         btnSalir.setBackground(new java.awt.Color(255, 204, 153));
         btnSalir.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        btnSalir.setForeground(new java.awt.Color(51, 51, 51));
-        btnSalir.setText("Salir");
+        btnSalir.setForeground(new java.awt.Color(0, 0, 0));
+        btnSalir.setText("<<< Regresar");
         btnSalir.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnSalirActionPerformed(evt);
+            }
+        });
+
+        jToggleButton1.setBackground(new java.awt.Color(0, 153, 255));
+        jToggleButton1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jToggleButton1.setForeground(new java.awt.Color(0, 0, 0));
+        jToggleButton1.setText("Activar asistencia por BLUETOOTH");
+        jToggleButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleButton1ActionPerformed(evt);
             }
         });
 
@@ -237,68 +263,63 @@ public class AsistenciaForm extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(6, 6, 6)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(12, 12, 12)
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 883, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(8, 8, 8)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel4)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel5)))
+                        .addGap(18, 18, 18)
+                        .addComponent(labelFecha, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(8, 8, 8))
                     .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 883, Short.MAX_VALUE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(btnCargar)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cbSemana, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(btnVincular)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(btnGuardar, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(30, 30, 30)
-                                .addComponent(btnSalir, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel4)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jLabel5)
-                                .addGap(53, 53, 53)
-                                .addComponent(labelFecha)
-                                .addGap(25, 25, 25)))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                        .addComponent(btnVincular, javax.swing.GroupLayout.PREFERRED_SIZE, 241, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jToggleButton1)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnGuardar, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 6, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 883, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnSalir, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(693, 693, 693))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(25, 25, 25)
+                .addContainerGap()
+                .addComponent(btnSalir)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(14, 14, 14)
-                                .addComponent(jLabel4)
-                                .addGap(4, 4, 4))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jLabel5)
-                                    .addComponent(labelFecha))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(14, 14, 14)
+                        .addComponent(jLabel4)
+                        .addGap(16, 16, 16)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(cbSemana, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnCargar))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 15, Short.MAX_VALUE)
+                            .addComponent(labelFecha)
+                            .addComponent(jLabel5))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 237, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(19, 19, 19)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btnSalir)
-                            .addComponent(btnGuardar)
-                            .addComponent(btnVincular)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(btnGuardar, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(btnVincular, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jToggleButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(20, 20, 20))
+                .addContainerGap(8, Short.MAX_VALUE))
         );
 
         pack();
@@ -307,83 +328,92 @@ public class AsistenciaForm extends javax.swing.JFrame {
 
     private void jComboBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox2ActionPerformed
         // TODO add your handling code here:
+
     }//GEN-LAST:event_jComboBox2ActionPerformed
 
-    private void btnCargarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCargarActionPerformed
-
-        model = new DefaultTableModel(new Object[][]{
-            {"1", "00001236672", "saul reyna", "saul@gmail.com"},
-            {"2", "00001236672", "Aquiles Brinco", "aquiles@gmail.com"},
-            {"3", "00000228730", "Hector Grajales", "hector@gmail.com"},
-            {"4", "0002223312", "Saul Murrieta", "sulo@gmail.com"},},
-                HEADER_NAME);
-        crearTablaCombo();
-    }//GEN-LAST:event_btnCargarActionPerformed
-
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-        
+        List<Asistencia> listaAsistencia = obtenerAsistencias();
+        boolean registro = verificarRegistroAsistencia();
+        int respuesta = JOptionPane.showConfirmDialog(this, "?Est? seguro de guardar la asistencia?\n aquellos registros vac?os ser?n tomados como falta", "Registrar asistencia", JOptionPane.YES_NO_OPTION);
+        if (respuesta == JOptionPane.YES_OPTION) {
+            if(registro == true){
+            for (Asistencia asistencia : listaAsistencia) {
+                if (!new ControlAsistencia(conexion).registrarAsistencia(asistencia)) {
+                    Alumno alumno = new ControlAlumnos(conexion).consultarAlumnoPorId(asistencia.getId_alumno());
+                    JOptionPane.showMessageDialog(this, "Error al registrar la asistencia del alumno " + alumno.getApellido() + " " + alumno.getNombre(), "Fallo en la asistencia", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+            JOptionPane.showMessageDialog(this, "Se registr? la asistencia correctamente", "Proceso exitoso", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                for (Asistencia asistencia : listaAsistencia) {
+                if (!new ControlAsistencia(conexion).actualizarAsistencia(asistencia)) {
+                    Alumno alumno = new ControlAlumnos(conexion).consultarAlumnoPorId(asistencia.getId_alumno());
+                    JOptionPane.showMessageDialog(this, "Error al registrar la asistencia del alumno " + alumno.getApellido() + " " + alumno.getNombre(), "Fallo en la asistencia", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+            JOptionPane.showMessageDialog(this, "Se actualizo la asistencia correctamente", "Proceso exitoso", JOptionPane.INFORMATION_MESSAGE);
+            }
+        }
     }//GEN-LAST:event_btnGuardarActionPerformed
-
-    private void cbSemanaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbSemanaActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_cbSemanaActionPerformed
 
     private void btnVincularActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVincularActionPerformed
         // TODO add your handling code here:
-        new VincularForm().setVisible(true);
+        new VincularForm(id_grupo, conexion).setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnVincularActionPerformed
 
     private void btnSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalirActionPerformed
-        new Menu().setVisible(true);
+        new Menu(conexion).setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnSalirActionPerformed
+
+    private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jToggleButton1ActionPerformed
 
     /**
      * @param args the command line arguments
      */
-//    public static void main(String args[]) {
-//        /* Set the Nimbus look and feel */
-//        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-//        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-//         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-//         */
-//        try {
-//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-//                if ("Nimbus".equals(info.getName())) {
-//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-//                    break;
-//                }
-//            }
-//        } catch (ClassNotFoundException ex) {
-//            java.util.logging.Logger.getLogger(AsistenciaForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (InstantiationException ex) {
-//            java.util.logging.Logger.getLogger(AsistenciaForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (IllegalAccessException ex) {
-//            java.util.logging.Logger.getLogger(AsistenciaForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-//            java.util.logging.Logger.getLogger(AsistenciaForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        }
-//        //</editor-fold>
-//
-//        /* Create and display the form */
-//        java.awt.EventQueue.invokeLater(new Runnable() {
-//            public void run() {
-//                new AsistenciaForm().setVisible(true);
-//            }
-//
-//        });
-//    }
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(AsistenciaForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(AsistenciaForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(AsistenciaForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(AsistenciaForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new AsistenciaForm(Long.valueOf("1"), new ConexionBD()).setVisible(true);
+            }
+
+        });
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnCargar;
     private javax.swing.JButton btnGuardar;
     private javax.swing.JButton btnSalir;
     private javax.swing.JButton btnVincular;
-    private javax.swing.JComboBox<String> cbSemana;
     private javax.swing.JComboBox<String> jComboBox2;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JMenu jMenu1;
@@ -392,6 +422,7 @@ public class AsistenciaForm extends javax.swing.JFrame {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JLabel labelFecha;
     private javax.swing.JTable tablaAsistencia;
     // End of variables declaration//GEN-END:variables

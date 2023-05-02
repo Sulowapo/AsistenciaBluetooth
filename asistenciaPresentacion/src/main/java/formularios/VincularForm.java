@@ -1,6 +1,8 @@
 package formularios;
 
+import funciones.MyDiscoveryListener;
 import implementaciones.ConexionBD;
+import interfaces.IConexionBD;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -14,15 +16,16 @@ import javax.bluetooth.RemoteDevice;
 
 public class VincularForm extends javax.swing.JFrame implements PropertyChangeListener {
 
-    MyDiscoveryListener listener;
-
-    /**
-     * Creates new form VincularForm
-     */
-    public VincularForm() {
+    private MyDiscoveryListener listener;
+    private Long id_grupo;
+    private IConexionBD conexion;
+    
+    public VincularForm(Long id_grupo, IConexionBD conexion) {
         initComponents();
         listener = new MyDiscoveryListener();
         listener.addPropertyListener(this);
+        this.conexion = conexion;
+        this.id_grupo = id_grupo;
     }
 
     /**
@@ -144,7 +147,7 @@ public class VincularForm extends javax.swing.JFrame implements PropertyChangeLi
     }//GEN-LAST:event_vincular_ButtonActionPerformed
 
     private void btnSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalirActionPerformed
-        new AsistenciaForm().setVisible(true);
+        new AsistenciaForm(id_grupo, conexion).setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnSalirActionPerformed
 

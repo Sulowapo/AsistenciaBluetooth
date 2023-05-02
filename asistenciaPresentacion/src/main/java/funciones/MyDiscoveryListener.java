@@ -1,4 +1,4 @@
-package formularios;
+package funciones;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;

@@ -5,26 +5,20 @@
     <artifactId>asistenciaPersistencia</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
-    
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>itson.isw</groupId>
             <artifactId>asistenciaDominio</artifactId>
-            <version>${project.version}</version>
+            <version>1.0</version>
         </dependency>
         <dependency>
-            <groupId>org.xerial</groupId>
+            <groupId>com.github.gotson</groupId>
             <artifactId>sqlite-jdbc</artifactId>
-            <version>3.8.11.2</version>
+            <version>3.32.3.6</version>
         </dependency>
     </dependencies>
-
-    
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <exec.mainClass>implementaciones.AsistenciaPersistencia</exec.mainClass>
-    </properties>
-   
 </project>

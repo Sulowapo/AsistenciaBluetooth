@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package entidades;
 
 public class Alumno {
@@ -40,12 +37,19 @@ public class Alumno {
         this.nombre = nombre;
         this.apellido = apellido;
     }
+    
+    public Alumno(String matricula_alumno, String correo_alumno, String nombre, String apellido) {
+        this.matricula_alumno = matricula_alumno;
+        this.correo_alumno = correo_alumno;
+        this.nombre = nombre;
+        this.apellido = apellido;
+    }
 
-    public Long getAlumno_id() {
+    public Long getId_Alumno() {
         return id_alumno;
     }
 
-    public void setId_alumno(Long id_alumno) {
+    public void setId_Alumno(Long id_alumno) {
         this.id_alumno = id_alumno;
     }
 

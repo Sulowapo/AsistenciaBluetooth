@@ -1,4 +1,4 @@
-package formularios;
+package funciones;
 
 import java.util.Vector;
 import javax.bluetooth.DeviceClass;

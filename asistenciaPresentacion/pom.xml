@@ -5,6 +5,7 @@
     <artifactId>asistenciaPresentacion</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
+<<<<<<< Updated upstream
     <repositories>
         <repository>
             <id>unknown-jars-temp-repo</id>
@@ -12,27 +13,28 @@
             <url>file:${project.basedir}/lib</url>
         </repository>
     </repositories>
+=======
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
+>>>>>>> Stashed changes
     <dependencies>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>asistenciaNegocio</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>io.ultreia</groupId>
             <artifactId>bluecove</artifactId>
             <version>2.1.1</version>
         </dependency>
         <dependency>
+<<<<<<< Updated upstream
             <groupId>unknown.binary</groupId>
             <artifactId>jcalendar-1.4</artifactId>
             <version>SNAPSHOT</version>
+=======
+            <groupId>${project.groupId}</groupId>
+            <artifactId>asistenciaNegocio</artifactId>
+            <version>${project.version}</version>
+>>>>>>> Stashed changes
         </dependency>
     </dependencies>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <exec.mainClass>AsistenciaPresentacion</exec.mainClass>
-    </properties>
 </project>
