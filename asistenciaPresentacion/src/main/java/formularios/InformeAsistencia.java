@@ -1,14 +1,15 @@
 package formularios;
 
+import interfaces.IConexionBD;
 import java.util.Calendar;
 
 public class InformeAsistencia extends javax.swing.JFrame {
 
-    /**
-     * Creates new form InformeAsistencia
-     */
-    public InformeAsistencia() {
+    private IConexionBD conexion;
+    
+    public InformeAsistencia(IConexionBD conexion) {
         initComponents();
+        this.conexion = conexion;
 
         // Configurar el JCalendar con la fecha actual
         jCalendarFecha.setDate(Calendar.getInstance().getTime());
@@ -144,10 +145,11 @@ public class InformeAsistencia extends javax.swing.JFrame {
                             .addComponent(jLabel1)
                             .addComponent(comboGrupo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(29, 29, 29)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel2)
-                            .addComponent(comboFormato, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel5)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(comboFormato, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(jLabel2)
+                                .addComponent(jLabel5))))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel3)
@@ -165,7 +167,7 @@ public class InformeAsistencia extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalirActionPerformed
-        new Menu().setVisible(true);
+        new Menu(conexion).setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnSalirActionPerformed
 
