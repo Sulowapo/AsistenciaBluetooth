@@ -1,0 +1,6 @@
+control\ControlGrupos.class
+interfacescontrol\IControlAlumnos.class
+control\ControlAlumnos.class
+interfacescontrol\IControlAsistencias.class
+control\ControlAsistencia.class
+interfacescontrol\IControlGrupos.class
