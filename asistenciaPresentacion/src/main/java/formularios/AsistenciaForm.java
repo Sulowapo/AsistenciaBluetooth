@@ -12,6 +12,7 @@ import entidades.Alumno;
 import entidades.Asistencia;
 import funciones.RemoteDeviceDiscovery;
 import interfacescontrol.IControlAlumnos;
+import java.awt.Color;
 import java.util.List;
 import java.util.Objects;
 import java.util.Vector;
@@ -130,9 +131,12 @@ public class AsistenciaForm extends javax.swing.JFrame {
                     int i = 0;
                     for (Alumno alumno : listaAlumnos) {
                         for (RemoteDevice dispositivosDescubierto : dispositivosDescubiertos) {
+                            //System.out.println(dispositivosDescubierto.getBluetoothAddress());
                             if (alumno.getDispositivoBluetoothDireccion() == null ? dispositivosDescubierto.getBluetoothAddress() == null : alumno.getDispositivoBluetoothDireccion().equals(dispositivosDescubierto.getBluetoothAddress())) {
                                 tablaAsistencia.setValueAt("Presente", i, 4);
                             }
+//                            System.out.println("Alumno aqui: ");
+//                            System.out.println(alumno.getDispositivoBluetoothDireccion());
                         }
                         i++;
                     }
@@ -398,11 +402,18 @@ public class AsistenciaForm extends javax.swing.JFrame {
         if (asistenciaBluetooth == false) {
             hilo.start();
             asistenciaBluetooth = true;
+            btnAsistenciaBluetooth.setText("Desactivar Bluetooth");
+            btnAsistenciaBluetooth.setBackground(Color.RED);
         } else {
             try {
+                System.out.println("Antes de hilo");
                 hilo.join();
+                System.out.println("Depsues de hilo");
                 asistenciaBluetooth = false;
+                btnAsistenciaBluetooth.setText("Activar asistencia por Bluetooth");
+                btnAsistenciaBluetooth.setBackground(Color.BLUE);
             } catch (InterruptedException ex) {
+                System.out.println("Test");
             }
         }
     }//GEN-LAST:event_btnAsistenciaBluetoothActionPerformed

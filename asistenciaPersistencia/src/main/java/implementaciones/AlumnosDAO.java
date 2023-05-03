@@ -82,7 +82,7 @@ public class AlumnosDAO implements IAlumnosDAO {
         List<Alumno> listaAlumnos = new ArrayList<>();
         try {
             con = conexion.obtenerConexion();
-            PreparedStatement ps = con.prepareStatement("SELECT a.id as id_Alumno, a.matricula as matricula_Alumno, a.nombre as nombre_Alumno, a.apellido as apellido_Alumno, a.correo as correo_Alumno FROM alumnos AS a INNER JOIN relGruposAlumnos AS r ON r.id_alumno = a.id WHERE r.id_grupo = ? ORDER BY apellido_Alumno ASC");
+            PreparedStatement ps = con.prepareStatement("SELECT a.id as id_Alumno, a.matricula as matricula_Alumno, a.nombre as nombre_Alumno, a.apellido as apellido_Alumno, a.correo as correo_Alumno, a.dispositivoBluetoothNombre as bluetoothNombre, a.dispositivoBlietoothAdress as bluetoothAdress FROM alumnos AS a INNER JOIN relGruposAlumnos AS r ON r.id_alumno = a.id WHERE r.id_grupo = ? ORDER BY apellido_Alumno ASC");
             ps.setLong(1, id_grupo);
             ResultSet result = ps.executeQuery();
             while (result.next()) {
@@ -91,7 +91,9 @@ public class AlumnosDAO implements IAlumnosDAO {
                 String nombre = result.getString("nombre_Alumno");
                 String apellido = result.getString("apellido_Alumno");
                 String correo = result.getString("correo_Alumno");
-                listaAlumnos.add(new Alumno(id, matricula, correo, nombre, apellido));
+                String nombreBluetooth = result.getString("bluetoothNombre");
+                String direccionBluetooth = result.getString("bluetoothAdress");
+                listaAlumnos.add(new Alumno(id, matricula, correo, nombre, apellido, nombreBluetooth, direccionBluetooth));
             }
             return listaAlumnos;
         } catch (SQLException ex) {
