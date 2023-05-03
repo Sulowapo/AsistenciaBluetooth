@@ -16,6 +16,8 @@ import java.awt.Color;
 import java.util.List;
 import java.util.Objects;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.bluetooth.RemoteDevice;
 import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
@@ -27,6 +29,7 @@ public class AsistenciaForm extends javax.swing.JFrame {
     private Long id_grupo;
     private List<Alumno> listaAlumnos = new ArrayList<>();
     private boolean asistenciaBluetooth = false;
+    private boolean hiloIniciado = false;
     private Thread hilo;
     private Vector<RemoteDevice> dispositivosDescubiertos;
 
@@ -37,6 +40,7 @@ public class AsistenciaForm extends javax.swing.JFrame {
         this.hilo = new Thread(verificadorBluetooth);
         asignarFecha();
         generarTabla();
+
     }
 
     private void asignarFecha() {
@@ -125,23 +129,34 @@ public class AsistenciaForm extends javax.swing.JFrame {
     Runnable verificadorBluetooth = new Runnable() {
         @Override
         public void run() {
-            while (asistenciaBluetooth) {
-                try {
-                    dispositivosDescubiertos = new RemoteDeviceDiscovery().getDevices();
-                    int i = 0;
-                    for (Alumno alumno : listaAlumnos) {
-                        for (RemoteDevice dispositivosDescubierto : dispositivosDescubiertos) {
-                            //System.out.println(dispositivosDescubierto.getBluetoothAddress());
-                            if (alumno.getDispositivoBluetoothDireccion() == null ? dispositivosDescubierto.getBluetoothAddress() == null : alumno.getDispositivoBluetoothDireccion().equals(dispositivosDescubierto.getBluetoothAddress())) {
-                                tablaAsistencia.setValueAt("Presente", i, 4);
+            while (true) {
+                if (asistenciaBluetooth) {
+                    try {
+                        dispositivosDescubiertos = new RemoteDeviceDiscovery().getDevices();
+                        int i = 0;
+                        for (Alumno alumno : listaAlumnos) {
+                            for (RemoteDevice dispositivosDescubierto : dispositivosDescubiertos) {
+                                if (alumno.getDispositivoBluetoothDireccion() == null ? dispositivosDescubierto.getBluetoothAddress() == null : alumno.getDispositivoBluetoothDireccion().equals(dispositivosDescubierto.getBluetoothAddress())) {
+                                    tablaAsistencia.setValueAt("Presente", i, 4);
+                                }
                             }
-//                            System.out.println("Alumno aqui: ");
-//                            System.out.println(alumno.getDispositivoBluetoothDireccion());
+                            i++;
                         }
-                        i++;
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        System.out.println("Hilo");
                     }
-                    Thread.sleep(10000);
-                } catch (InterruptedException e) {
+                } else {
+                    synchronized (this) {
+                        while (!asistenciaBluetooth) {
+                            try {
+                                wait();
+                            } catch (InterruptedException ex) {
+                                Logger.getLogger(AsistenciaForm.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                    }
+
                 }
             }
         }
@@ -400,21 +415,24 @@ public class AsistenciaForm extends javax.swing.JFrame {
     private void btnAsistenciaBluetoothActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAsistenciaBluetoothActionPerformed
         // TODO add your handling code here:
         if (asistenciaBluetooth == false) {
-            hilo.start();
+            if (!hiloIniciado) {
+                hilo.start();
+                hiloIniciado = true;
+            }
             asistenciaBluetooth = true;
             btnAsistenciaBluetooth.setText("Desactivar Bluetooth");
             btnAsistenciaBluetooth.setBackground(Color.RED);
         } else {
-            try {
-                System.out.println("Antes de hilo");
-                hilo.join();
-                System.out.println("Depsues de hilo");
-                asistenciaBluetooth = false;
-                btnAsistenciaBluetooth.setText("Activar asistencia por Bluetooth");
-                btnAsistenciaBluetooth.setBackground(Color.BLUE);
-            } catch (InterruptedException ex) {
-                System.out.println("Test");
-            }
+//            try {
+//                System.out.println("Antes de hilo");
+//                hilo.join();
+//                System.out.println("Depsues de hilo");
+            asistenciaBluetooth = false;
+            btnAsistenciaBluetooth.setText("Activar asistencia por Bluetooth");
+            btnAsistenciaBluetooth.setBackground(Color.BLUE);
+//            } catch (InterruptedException ex) {
+//                System.out.println("Test");
+//            }
         }
     }//GEN-LAST:event_btnAsistenciaBluetoothActionPerformed
 
