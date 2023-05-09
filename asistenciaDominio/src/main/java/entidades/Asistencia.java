@@ -33,6 +33,12 @@ public class Asistencia {
         this.estado = estado;
     }
 
+    public Asistencia(Long id_grupo, String fechaHoraRegistro) {
+        this.id_grupo = id_grupo;
+        this.fechaHoraRegistro = fechaHoraRegistro;
+    }
+    
+    
     public Long getId_asistencia() {
         return id_asistencia;
     }

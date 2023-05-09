@@ -14,7 +14,7 @@ public class AsistenciasDAO implements IAsistenciasDAO {
 
     private IConexionBD conexion;
     Connection con;
-    
+
     public AsistenciasDAO(IConexionBD conexion) {
         this.conexion = conexion;
         new DataBase(conexion).verificarBaseDeDatos();
@@ -34,7 +34,7 @@ public class AsistenciasDAO implements IAsistenciasDAO {
         } catch (SQLException ex) {
             System.err.println(ex.getMessage());
             return false;
-        } 
+        }
     }
 
     @Override
@@ -51,7 +51,7 @@ public class AsistenciasDAO implements IAsistenciasDAO {
         } catch (SQLException ex) {
             System.err.println(ex.getMessage());
             return false;
-        } 
+        }
     }
 
     @Override
@@ -70,7 +70,7 @@ public class AsistenciasDAO implements IAsistenciasDAO {
             result = st.executeQuery();
             while (result.next()) {
                 Long id_asistencia = result.getLong("id_asistencia");
-                Long id_alumno = result.getLong("id_asistencia");
+                Long id_alumno = result.getLong("id_grupo");
                 String fechaHoraRegistro = result.getString("fechaHoraRegistro");
                 String estado = result.getString("estado");
                 listaAsistencia.add(new Asistencia(id_asistencia, id_alumno, id_grupo, fechaHoraRegistro, estado));
@@ -79,7 +79,7 @@ public class AsistenciasDAO implements IAsistenciasDAO {
         } catch (SQLException ex) {
             System.err.println(ex.getMessage());
             return null;
-        } 
+        }
     }
 
     @Override
@@ -103,7 +103,51 @@ public class AsistenciasDAO implements IAsistenciasDAO {
         } catch (SQLException ex) {
             System.err.println(ex.getMessage());
             return null;
-        } 
+        }
+    }
+
+    @Override
+    public List<Asistencia> consultarFechasAsistenciasPorGrupo(Long id_grupo) {
+        List<Asistencia> listaAsistencia = new ArrayList<>();
+        ResultSet result = null;
+        String SQL = "SELECT asistencias.fechaHoraRegistro FROM asistencias WHERE asistencias.id_grupo = " + id_grupo.toString() + " GROUP BY asistencias.fechaHoraRegistro";
+        try {
+            con = conexion.obtenerConexion();
+            PreparedStatement st = con.prepareStatement(SQL);
+            result = st.executeQuery();
+            while (result.next()) {
+                String fechaHoraRegistro = result.getString("fecha_asistencia");
+                listaAsistencia.add(new Asistencia(id_grupo, fechaHoraRegistro));
+            }
+            return listaAsistencia;
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public List<Asistencia> consultarFechasAsistenciasAlumnoPorGrupo(Long id_grupo, Long id_alumno) {
+        List<Asistencia> listaAsistencia = new ArrayList<>();
+        ResultSet result = null;
+        String SQL = "SELECT asistencias.id AS id_asistencia, asistencias.fechaHoraRegistro AS fecha_asistencia, asistencias.estado AS estado_asistencia "
+                + "FROM asistencias "
+                + "WHERE asistencias.id_grupo = " + id_grupo.toString() + " AND asistencias.id_alumno = " + id_alumno.toString();
+        try {
+            con = conexion.obtenerConexion();
+            PreparedStatement st = con.prepareStatement(SQL);
+            result = st.executeQuery();
+            while (result.next()) {
+                Long id_asistencia = result.getLong("id_asistencia");
+                String fechaHoraRegistro = result.getString("fecha_asistencia");
+                String estado = result.getString("estado_asistencia");
+                listaAsistencia.add(new Asistencia(id_asistencia, id_alumno, id_grupo, fechaHoraRegistro, estado));
+            }
+            return listaAsistencia;
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+            return null;
+        }
     }
 
 }

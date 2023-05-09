@@ -6,6 +6,9 @@ package formularios;
 
 import implementaciones.ConexionBD;
 import interfaces.IConexionBD;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -122,7 +125,11 @@ public class MenuForm extends javax.swing.JFrame {
     }//GEN-LAST:event_btnAsistenciaActionPerformed
 
     private void btnInformeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInformeActionPerformed
-        new InformeAsistencia(conexion).setVisible(true);
+        try {
+            new InformeAsistencia(conexion).setVisible(true);
+        } catch (SQLException ex) {
+            Logger.getLogger(MenuForm.class.getName()).log(Level.SEVERE, null, ex);
+        }
         this.dispose();
     }//GEN-LAST:event_btnInformeActionPerformed
 

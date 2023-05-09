@@ -1,26 +1,131 @@
 package formularios;
 
+import entidades.Alumno;
+import entidades.Grupo;
 import interfaces.IConexionBD;
-import java.util.Calendar;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.List;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.table.DefaultTableModel;
+//import vista.Asistencia;
+import com.itextpdf.text.Document;
+import java.io.File;
+import javax.swing.JFileChooser;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import java.io.FileOutputStream;
+import javax.swing.JOptionPane;
+import javax.swing.JTable;
 
 public class InformeAsistencia extends javax.swing.JFrame {
 
     private IConexionBD conexion;
-    
-    public InformeAsistencia(IConexionBD conexion) {
+    private Statement statement;
+    //private List<Alumno> listaAlumnos;
+    //private List<Asistencia> listaAsistencias;
+    private List<Grupo> listaGrupos;
+
+    public InformeAsistencia(IConexionBD conexion) throws SQLException {
         initComponents();
         this.conexion = conexion;
+        this.statement = this.conexion.obtenerConexion().createStatement();
+        llenarComboBox();
+    }
 
-        // Configurar el JCalendar con la fecha actual
-        jCalendarFecha.setDate(Calendar.getInstance().getTime());
+    private void llenarComboBoxConDAO() {
+        try {
+            String query = "SELECT * FROM grupos";
+            try (ResultSet rs = statement.executeQuery(query)) {
+                DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+                while (rs.next()) {
+                    String nombreClase = rs.getString("nombreClase");
+                    listaGrupos.add(new Grupo());
+                }
+                comboGrupo.setModel(model);
+            }
+        } catch (SQLException e) {
+        }
+    }
 
-        // Configurar los valores del JComboBox de formato de tiempo
-        comboFormato.addItem("Semanal");
-        comboFormato.addItem("Mensual");
-        comboFormato.addItem("Semestral");
+    private void llenarComboBox() {
+        try {
+            String query = "SELECT * FROM grupos";
+            try (ResultSet rs = statement.executeQuery(query)) {
+                DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+                while (rs.next()) {
+                    String nombreClase = rs.getString("nombreClase");
+                    model.addElement(nombreClase);
+                }
+                comboGrupo.setModel(model);
+            }
+        } catch (SQLException e) {
+            // Manejar la excepciÛn SQL
+        }
+    }
 
-        // Deshabilitar el JComboBox de per√≠odo de tiempo hasta que se seleccione un formato
-        comboPeriodo.setEnabled(false);
+    private void llenarTablaInformes(String grupoSeleccionado) {
+        DefaultTableModel modelo = (DefaultTableModel) tablaInforme.getModel();
+        modelo.setRowCount(0); // Limpiar la tabla antes de llenarla nuevamente
+        try {
+            String query = "SELECT alumnos.nombre AS nombre_alumno, alumnos.apellido AS apellido_alumno, alumnos.matricula AS matricula_alumno, asistencias.fechaHoraRegistro AS fecha_asistencia, asistencias.estado AS estado_asistencia "
+                    + "FROM alumnos "
+                    + "JOIN asistencias ON alumnos.id = asistencias.id_alumno "
+                    + "JOIN grupos ON asistencias.id_grupo = grupos.id "
+                    + "WHERE grupos.nombreClase = ?"; //Implementado con nombre del grupo pero es con id_grupo
+            try (PreparedStatement statement = conexion.obtenerConexion().prepareStatement(query)) {
+                statement.setString(1, grupoSeleccionado);
+                try (ResultSet rs = statement.executeQuery()) {
+                    while (rs.next()) {
+                        String nombre = rs.getString("nombre_alumno");
+                        String apellido = rs.getString("apellido_alumno");
+                        String matricula = rs.getString("matricula_alumno");
+                        String fechaHoraRegistro = rs.getString("fecha_asistencia");
+                        String estado = rs.getString("estado_asistencia");
+                        modelo.addRow(new Object[]{nombre + " " + apellido, matricula, fechaHoraRegistro, estado});
+                    }
+                    //System.out.println("AQUI");
+                    tablaInforme.setModel(modelo);
+                }
+            }
+        } catch (SQLException e) {
+            //System.out.println(e.getMessage());
+            // Manejo de excepciones
+        }
+    }
+
+    private void llenarTablaEstadisticas(String grupoSeleccionado) throws SQLException {
+        DefaultTableModel modelo = (DefaultTableModel) tablaEstadisticas.getModel();
+        modelo.setRowCount(0); // Limpiar la tabla antes de llenarla nuevamente
+        String query = "SELECT alumnos.nombre, alumnos.apellido, alumnos.matricula, asistencias.fechaHoraRegistro, asistencias.estado, grupos.nombreClase\n"
+                + "FROM alumnos\n"
+                + "JOIN asistencias ON alumnos.id = asistencias.id_alumno\n"
+                + "JOIN grupos ON asistencias.id_grupo = grupos.id"
+                + "WHERE nombreClase = ?";
+        try (PreparedStatement statement = conexion.obtenerConexion().prepareStatement(query)) {
+            statement.setString(1, grupoSeleccionado);
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    int idAlumno = rs.getInt("id_alumno");
+                    String nombre = rs.getString("nombre");
+                    String apellido = rs.getString("apellido");
+                    int presentes = rs.getInt("presentes");
+                    int faltas = rs.getInt("faltas");
+                    int retardos = rs.getInt("retardos");
+                    int justificados = rs.getInt("justificados");
+                    modelo.addRow(new Object[]{idAlumno, nombre, apellido, presentes, faltas, retardos, justificados});
+                }
+            }
+        }
     }
 
     /**
@@ -32,52 +137,59 @@ public class InformeAsistencia extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        comboFormato = new javax.swing.JComboBox<>();
-        comboGrupo = new javax.swing.JComboBox<>();
-        jLabel3 = new javax.swing.JLabel();
-        comboPeriodo = new javax.swing.JComboBox<>();
-        btnSalir = new javax.swing.JButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        tablaEstadisticas = new javax.swing.JTable();
         btnAceptar = new javax.swing.JButton();
-        jLabel4 = new javax.swing.JLabel();
+        btnSalir = new javax.swing.JButton();
+        cal_FechaFin = new com.toedter.calendar.JDateChooser();
+        jLabel6 = new javax.swing.JLabel();
+        cal_FechaInicio = new com.toedter.calendar.JDateChooser();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tablaInforme = new javax.swing.JTable();
         jLabel5 = new javax.swing.JLabel();
-        jCalendarFecha = new com.toedter.calendar.JCalendar();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        comboGrupo = new javax.swing.JComboBox<>();
+        btnPdf = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Informe Asistencia");
 
-        jLabel1.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-        jLabel1.setText("Grupo");
+        tablaEstadisticas.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
+            },
+            new String [] {
+                "ID", "Alumno", "Presentes", "Faltas", "Justificados", "Retardos"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class
+            };
+            boolean[] canEdit = new boolean [] {
+                true, false, false, false, false, false
+            };
 
-        jLabel2.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-        jLabel2.setText("Formato Informe");
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
 
-        comboFormato.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-        comboFormato.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Semana", "Mes", "Semestre" }));
-        comboFormato.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                comboFormatoActionPerformed(evt);
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
             }
         });
-
-        comboGrupo.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-        comboGrupo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Grupo 1", "Grupo 2", "Grupo3" }));
-
-        jLabel3.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-        jLabel3.setText("Fecha");
-
-        comboPeriodo.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-        comboPeriodo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Semana 1", "Semana 2", "Semana 3", "Semana 4" }));
-
-        btnSalir.setBackground(new java.awt.Color(255, 51, 51));
-        btnSalir.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
-        btnSalir.setForeground(new java.awt.Color(255, 255, 255));
-        btnSalir.setText("Salir");
-        btnSalir.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnSalirActionPerformed(evt);
-            }
-        });
+        jScrollPane3.setViewportView(tablaEstadisticas);
 
         btnAceptar.setBackground(new java.awt.Color(255, 153, 102));
         btnAceptar.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
@@ -89,176 +201,268 @@ public class InformeAsistencia extends javax.swing.JFrame {
             }
         });
 
-        jLabel4.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
+        btnSalir.setBackground(new java.awt.Color(255, 51, 51));
+        btnSalir.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        btnSalir.setForeground(new java.awt.Color(255, 255, 255));
+        btnSalir.setText("Salir");
+        btnSalir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSalirActionPerformed(evt);
+            }
+        });
+
+        jLabel6.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        jLabel6.setText("Fecha Fin");
+
+        tablaInforme.setFont(new java.awt.Font("Mongolian Baiti", 0, 15)); // NOI18N
+        tablaInforme.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {"", "", null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Nombre", "Matricula", "Fecha", "Asistencia"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.Object.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tablaInforme.setToolTipText("");
+        tablaInforme.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
+        jScrollPane2.setViewportView(tablaInforme);
+
+        jLabel5.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        jLabel5.setText("Fecha Inicio");
+
+        jLabel1.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setText("Grupo");
+
+        jLabel4.setFont(new java.awt.Font("Dialog", 1, 24)); // NOI18N
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel4.setText("Informe Asistencia");
 
-        jLabel5.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-        jLabel5.setText("Periodo de Tiempo");
+        comboGrupo.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
+        comboGrupo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comboGrupoActionPerformed(evt);
+            }
+        });
+
+        btnPdf.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        btnPdf.setText("Descargar PDF");
+        btnPdf.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPdfActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(15, 15, 15)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel1)
-                                .addGap(18, 18, 18))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(jLabel2)
-                                .addGap(27, 27, 27)))
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(comboFormato, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(comboGrupo, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(18, 18, 18)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel3)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(comboPeriodo, javax.swing.GroupLayout.PREFERRED_SIZE, 214, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel5)
+                                .addComponent(jLabel1)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                        .addComponent(btnAceptar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(btnSalir, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(jCalendarFecha, javax.swing.GroupLayout.PREFERRED_SIZE, 214, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 15, Short.MAX_VALUE)))
+                                .addComponent(comboGrupo, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel5)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(cal_FechaInicio, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 559, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(24, 24, 24)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 465, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(jLabel6)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(cal_FechaFin, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(29, 29, 29)
+                                .addComponent(btnAceptar, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btnSalir, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(btnPdf, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(15, 15, 15)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(22, 22, 22)
                 .addComponent(jLabel4)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 15, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel1)
-                            .addComponent(comboGrupo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(29, 29, 29)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(comboFormato, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(jLabel2)
-                                .addComponent(jLabel5))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel3)
-                            .addComponent(comboPeriodo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addComponent(jCalendarFecha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(10, 10, 10)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btnAceptar)
-                            .addComponent(btnSalir))))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btnAceptar)
+                        .addComponent(btnSalir))
+                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(cal_FechaFin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(cal_FechaInicio, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(comboGrupo))
+                    .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnPdf, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnAceptarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAceptarActionPerformed
+        String grupoSeleccionado = comboGrupo.getSelectedItem().toString();
+        //llenarTablaInforme();
+        llenarTablaInformes(grupoSeleccionado);
+        //llenarTablaEstadisticas(grupoSeleccionado);
+    }//GEN-LAST:event_btnAceptarActionPerformed
 
     private void btnSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalirActionPerformed
         new MenuForm(conexion).setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnSalirActionPerformed
 
-    private void comboFormatoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboFormatoActionPerformed
-        comboPeriodo.setEnabled(true);
+    private void comboGrupoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboGrupoActionPerformed
+    }//GEN-LAST:event_comboGrupoActionPerformed
 
-        // Actualizar los valores del JComboBox de per√≠odo de tiempo basado en el formato seleccionado
-        String formato = (String) comboFormato.getSelectedItem();
-        switch (formato) {
-            case "Semanal":
-                comboPeriodo.removeAllItems();
-                for (int i = 1; i <= 52; i++) {
-                    comboPeriodo.addItem("Semana " + i);
-                }
-                break;
-            case "Mensual":
-                comboPeriodo.removeAllItems();
-                for (int i = 1; i <= 12; i++) {
-                    comboPeriodo.addItem("Mes " + i);
-                }
-                break;
-            case "Semestral":
-                comboPeriodo.removeAllItems();
-                comboPeriodo.addItem("Semestre Actual");
-                break;
+    private void btnPdfActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPdfActionPerformed
+        JFileChooser fileChooser = new JFileChooser();
+        int result = fileChooser.showSaveDialog(null);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+
+            // Crear el objeto Document
+            Document document = new Document(PageSize.A4);
+
+            try {
+                // Abrir el documento para escritura
+                PdfWriter.getInstance(document, new FileOutputStream(file));
+                document.open();
+
+                // Crear el tÌtulo "Informe de Asistencia"
+                Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16);
+                Paragraph title = new Paragraph("Informe de Asistencia", titleFont);
+                Paragraph blank = new Paragraph(" ");
+                title.setAlignment(Element.ALIGN_CENTER);
+
+                // Agregar el tÌtulo al documento
+                document.add(title);
+
+                // Agregar salto de lÌnea
+                document.add(Chunk.NEWLINE);
+
+                // Crear la tabla para tablaInforme
+                PdfPTable tablaInformePdf = new PdfPTable(4);
+                addTableContent(tablaInformePdf, tablaInforme);
+
+                // Crear el tÌtulo "EstadÌsticas"
+                Font subtitleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14);
+                Paragraph subtitle = new Paragraph("Asistencias", subtitleFont);
+
+                // Agregar salto de lÌnea
+                document.add(Chunk.NEWLINE);
+
+                // Agregar el tÌtulo "EstadÌsticas" al documento
+                document.add(subtitle);
+                document.add(blank);
+
+                // Crear la tabla para tablaEstadisticas
+                PdfPTable tablaEstadisticasPdf = new PdfPTable(6);
+                addTableContent(tablaEstadisticasPdf, tablaEstadisticas);
+
+                // Agregar tablaInforme al documento
+                document.add(tablaInformePdf);
+
+                Paragraph subtit = new Paragraph("EstadÌsticas", subtitleFont);
+
+                // Agregar salto de lÌnea
+                document.add(Chunk.NEWLINE);
+
+                document.add(subtit);
+                document.add(blank);
+
+                // Agregar tablaEstadisticas al documento
+                document.add(tablaEstadisticasPdf);
+
+                // Cerrar el documento
+                document.close();
+
+                // Mostrar mensaje de descarga exitosa
+                JOptionPane.showMessageDialog(null, "Descarga exitosa");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-    }//GEN-LAST:event_comboFormatoActionPerformed
+    }//GEN-LAST:event_btnPdfActionPerformed
 
-    private void btnAceptarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAceptarActionPerformed
-        // Obtener la fecha seleccionada en el JCalendar
-        String fecha = String.format("%1$td-%1$tm-%1$tY", jCalendarFecha.getDate());
-
-        // Obtener el formato de tiempo seleccionado en el JComboBox
-        String formato = (String) comboFormato.getSelectedItem();
-
-        // Obtener el per√≠odo de tiempo seleccionado en el JComboBox
-        String periodo = (String) comboPeriodo.getSelectedItem();
-
-        // Generar el informe de asistencia basado en los valores seleccionados
-        // Aqu√≠ puedes agregar la l√≥gica para generar el informe y mostrarlo al usuario
-        // Mostrar un mensaje de √©xito al usuario
-        javax.swing.JOptionPane.showMessageDialog(this, "Informe de asistencia generado para la fecha: " + fecha + ", formato: " + formato + ", per√≠odo: " + periodo);
-
-    }//GEN-LAST:event_btnAceptarActionPerformed
-
-    /**
-     * @param args the command line arguments
-     */
-//    public static void main(String args[]) {
-//        /* Set the Nimbus look and feel */
-//        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-//        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-//         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-//         */
-//        try {
-//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-//                if ("Nimbus".equals(info.getName())) {
-//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-//                    break;
-//                }
-//            }
-//        } catch (ClassNotFoundException ex) {
-//            java.util.logging.Logger.getLogger(InformeAsistencia.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (InstantiationException ex) {
-//            java.util.logging.Logger.getLogger(InformeAsistencia.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (IllegalAccessException ex) {
-//            java.util.logging.Logger.getLogger(InformeAsistencia.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-//            java.util.logging.Logger.getLogger(InformeAsistencia.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        }
-//        //</editor-fold>
-//
-//        /* Create and display the form */
-//        java.awt.EventQueue.invokeLater(new Runnable() {
-//            public void run() {
-//                new InformeAsistencia().setVisible(true);
-//            }
-//        });
-//    }
+    // MÈtodo para agregar el contenido de una JTable a una PdfPTable
+    private void addTableContent(PdfPTable pdfTable, JTable jTable) {
+        // Agregar encabezados de columna
+        for (int i = 0; i < jTable.getColumnCount(); i++) {
+            PdfPCell cell = new PdfPCell(new Paragraph(jTable.getColumnName(i)));
+            pdfTable.addCell(cell);
+        }
+        // Agregar contenido de celdas
+        for (int row = 0; row < jTable.getRowCount(); row++) {
+            for (int col = 0; col < jTable.getColumnCount(); col++) {
+                Object value = jTable.getValueAt(row, col);
+                String cellValue = (value != null) ? value.toString() : "";
+                pdfTable.addCell(cellValue);
+            }
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAceptar;
+    private javax.swing.JButton btnPdf;
     private javax.swing.JButton btnSalir;
-    private javax.swing.JComboBox<String> comboFormato;
+    private com.toedter.calendar.JDateChooser cal_FechaFin;
+    private com.toedter.calendar.JDateChooser cal_FechaInicio;
     private javax.swing.JComboBox<String> comboGrupo;
-    private javax.swing.JComboBox<String> comboPeriodo;
-    private com.toedter.calendar.JCalendar jCalendarFecha;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JTable tablaEstadisticas;
+    private javax.swing.JTable tablaInforme;
     // End of variables declaration//GEN-END:variables
 }
