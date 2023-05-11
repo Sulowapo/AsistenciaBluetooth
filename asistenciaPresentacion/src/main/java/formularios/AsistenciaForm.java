@@ -2,6 +2,7 @@ package formularios;
 
 import control.ControlAlumnos;
 import control.ControlAsistencia;
+import control.ControlGrupos;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.DefaultCellEditor;
 import interfaces.IConexionBD;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import funciones.Tiempo;
 import entidades.Alumno;
 import entidades.Asistencia;
+import entidades.Grupo;
 import funciones.RemoteDeviceDiscovery;
 import interfacescontrol.IControlAlumnos;
 import java.awt.Color;
@@ -32,6 +34,7 @@ public class AsistenciaForm extends javax.swing.JFrame {
     private boolean hiloIniciado = false;
     private Thread hilo;
     private Vector<RemoteDevice> dispositivosDescubiertos;
+    private List<Grupo> listaGrupos;
 
     public AsistenciaForm(Long id_grupo, IConexionBD conexion) {
         initComponents();
@@ -39,8 +42,8 @@ public class AsistenciaForm extends javax.swing.JFrame {
         this.id_grupo = id_grupo;
         this.hilo = new Thread(verificadorBluetooth);
         asignarFecha();
-        generarTabla();
-
+        generarTabla(id_grupo);
+        llenarComboboxGrupos();
     }
 
     private void asignarFecha() {
@@ -48,7 +51,14 @@ public class AsistenciaForm extends javax.swing.JFrame {
         this.labelFecha.setText(time.getFecha());
     }
 
-    private void generarTabla() {
+    private void llenarComboboxGrupos(){
+        this.listaGrupos = new ControlGrupos(conexion).consultarGrupos();
+        for(Grupo grupo: listaGrupos){
+            cbGrupos.addItem(grupo.getNombreClase());
+        }
+    }
+    
+    private void generarTabla(Long id_grupo) {
         DefaultTableModel modeloTabla = (DefaultTableModel) this.tablaAsistencia.getModel();
         modeloTabla.setRowCount(0);
         IControlAlumnos controlAlumnos = new ControlAlumnos(conexion);
@@ -174,7 +184,7 @@ public class AsistenciaForm extends javax.swing.JFrame {
         btnGuardar = new javax.swing.JButton();
         btnVincular = new javax.swing.JButton();
         labelFecha = new javax.swing.JLabel();
-        jComboBox2 = new javax.swing.JComboBox<>();
+        cbGrupos = new javax.swing.JComboBox<>();
         jPanel1 = new javax.swing.JPanel();
         btnSalir = new javax.swing.JButton();
         btnAsistenciaBluetooth = new javax.swing.JButton();
@@ -261,8 +271,12 @@ public class AsistenciaForm extends javax.swing.JFrame {
         labelFecha.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         labelFecha.setText("---");
 
-        jComboBox2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "AR122", "UTS77", "AG132", "BRN11" }));
+        cbGrupos.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        cbGrupos.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                cbGruposItemStateChanged(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -322,7 +336,7 @@ public class AsistenciaForm extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel4)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(cbGrupos, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(jLabel5)))
                         .addGap(18, 18, 18)
@@ -333,8 +347,7 @@ public class AsistenciaForm extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(btnAsistenciaBluetooth, javax.swing.GroupLayout.PREFERRED_SIZE, 332, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(btnGuardar, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 6, Short.MAX_VALUE))
+                        .addComponent(btnGuardar, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 883, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE)))
@@ -358,7 +371,7 @@ public class AsistenciaForm extends javax.swing.JFrame {
                         .addComponent(jLabel4)
                         .addGap(16, 16, 16)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(cbGrupos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(labelFecha)
                             .addComponent(jLabel5))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -436,12 +449,21 @@ public class AsistenciaForm extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnAsistenciaBluetoothActionPerformed
 
+    private void cbGruposItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbGruposItemStateChanged
+        // TODO add your handling code here:
+         for(Grupo grupo: listaGrupos){
+             if(grupo.getNombreClase() == cbGrupos.getSelectedItem()){
+                 generarTabla(grupo.getId_grupo());
+             }
+         }
+    }//GEN-LAST:event_cbGruposItemStateChanged
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAsistenciaBluetooth;
     private javax.swing.JButton btnGuardar;
     private javax.swing.JButton btnSalir;
     private javax.swing.JButton btnVincular;
-    private javax.swing.JComboBox<String> jComboBox2;
+    private javax.swing.JComboBox<String> cbGrupos;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;

@@ -2,21 +2,20 @@
 package entidades;
 
 import java.sql.Timestamp;
-import java.util.List;
 
 public class Grupo {
     private Long id_grupo;
 
     private String nombreClase;
 
-    private Timestamp horaInicio;
+    private String horaInicio;
 
-    private Timestamp horaFin;
+    private String horaFin;
 
     public Grupo() {
     }
 
-    public Grupo(Long id_grupo, String nombreClase, Timestamp horaInicio, Timestamp horaFin, List<Long> id_alumnos) {
+    public Grupo(Long id_grupo, String nombreClase, String horaInicio, String horaFin) {
         this.id_grupo = id_grupo;
         this.nombreClase = nombreClase;
         this.horaInicio = horaInicio;
@@ -39,19 +38,19 @@ public class Grupo {
         this.nombreClase = nombreClase;
     }
 
-    public Timestamp getHoraInicio() {
+    public String getHoraInicio() {
         return horaInicio;
     }
 
-    public void setHoraInicio(Timestamp horaInicio) {
+    public void setHoraInicio(String horaInicio) {
         this.horaInicio = horaInicio;
     }
 
-    public Timestamp getHoraFin() {
+    public String getHoraFin() {
         return horaFin;
     }
 
-    public void setHoraFin(Timestamp horaFin) {
+    public void setHoraFin(String horaFin) {
         this.horaFin = horaFin;
     }
 

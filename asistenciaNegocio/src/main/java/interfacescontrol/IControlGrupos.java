@@ -1,7 +1,10 @@
 package interfacescontrol;
 
+import entidades.Grupo;
+import java.util.List;
+
 public interface IControlGrupos {
 
-    //Si
+    public List<Grupo> consultarGrupos();
 
 }

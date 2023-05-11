@@ -23,6 +23,7 @@ import com.itextpdf.text.Font;
 import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
+import control.ControlGrupos;
 import java.io.FileOutputStream;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -39,37 +40,13 @@ public class InformeAsistencia extends javax.swing.JFrame {
         initComponents();
         this.conexion = conexion;
         this.statement = this.conexion.obtenerConexion().createStatement();
-        llenarComboBox();
+        llenarComboboxGrupos();
     }
 
-    private void llenarComboBoxConDAO() {
-        try {
-            String query = "SELECT * FROM grupos";
-            try (ResultSet rs = statement.executeQuery(query)) {
-                DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
-                while (rs.next()) {
-                    String nombreClase = rs.getString("nombreClase");
-                    listaGrupos.add(new Grupo());
-                }
-                comboGrupo.setModel(model);
-            }
-        } catch (SQLException e) {
-        }
-    }
-
-    private void llenarComboBox() {
-        try {
-            String query = "SELECT * FROM grupos";
-            try (ResultSet rs = statement.executeQuery(query)) {
-                DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
-                while (rs.next()) {
-                    String nombreClase = rs.getString("nombreClase");
-                    model.addElement(nombreClase);
-                }
-                comboGrupo.setModel(model);
-            }
-        } catch (SQLException e) {
-            // Manejar la excepción SQL
+    private void llenarComboboxGrupos(){
+        this.listaGrupos = new ControlGrupos(conexion).consultarGrupos();
+        for(Grupo grupo: listaGrupos){
+            cbGrupos.addItem(grupo.getNombreClase());
         }
     }
 
@@ -149,7 +126,7 @@ public class InformeAsistencia extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        comboGrupo = new javax.swing.JComboBox<>();
+        cbGrupos = new javax.swing.JComboBox<>();
         btnPdf = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -264,10 +241,10 @@ public class InformeAsistencia extends javax.swing.JFrame {
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel4.setText("Informe Asistencia");
 
-        comboGrupo.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-        comboGrupo.addActionListener(new java.awt.event.ActionListener() {
+        cbGrupos.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
+        cbGrupos.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                comboGrupoActionPerformed(evt);
+                cbGruposActionPerformed(evt);
             }
         });
 
@@ -292,7 +269,7 @@ public class InformeAsistencia extends javax.swing.JFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel1)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(comboGrupo, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(cbGrupos, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jLabel5)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -331,7 +308,7 @@ public class InformeAsistencia extends javax.swing.JFrame {
                     .addComponent(cal_FechaInicio, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(comboGrupo))
+                        .addComponent(cbGrupos))
                     .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -347,7 +324,7 @@ public class InformeAsistencia extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnAceptarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAceptarActionPerformed
-        String grupoSeleccionado = comboGrupo.getSelectedItem().toString();
+        String grupoSeleccionado = cbGrupos.getSelectedItem().toString();
         //llenarTablaInforme();
         llenarTablaInformes(grupoSeleccionado);
         //llenarTablaEstadisticas(grupoSeleccionado);
@@ -358,8 +335,8 @@ public class InformeAsistencia extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_btnSalirActionPerformed
 
-    private void comboGrupoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboGrupoActionPerformed
-    }//GEN-LAST:event_comboGrupoActionPerformed
+    private void cbGruposActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbGruposActionPerformed
+    }//GEN-LAST:event_cbGruposActionPerformed
 
     private void btnPdfActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPdfActionPerformed
         JFileChooser fileChooser = new JFileChooser();
@@ -455,7 +432,7 @@ public class InformeAsistencia extends javax.swing.JFrame {
     private javax.swing.JButton btnSalir;
     private com.toedter.calendar.JDateChooser cal_FechaFin;
     private com.toedter.calendar.JDateChooser cal_FechaInicio;
-    private javax.swing.JComboBox<String> comboGrupo;
+    private javax.swing.JComboBox<String> cbGrupos;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;

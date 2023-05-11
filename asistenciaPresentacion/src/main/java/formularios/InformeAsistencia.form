@@ -33,7 +33,7 @@
                           <Group type="102" attributes="0">
                               <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="comboGrupo" max="32767" attributes="0"/>
+                              <Component id="cbGrupos" max="32767" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
                               <EmptySpace type="unrelated" max="-2" attributes="0"/>
@@ -83,7 +83,7 @@
                   <Component id="cal_FechaInicio" alignment="0" max="32767" attributes="0"/>
                   <Group type="103" alignment="0" groupAlignment="3" attributes="0">
                       <Component id="jLabel5" alignment="3" max="32767" attributes="0"/>
-                      <Component id="comboGrupo" alignment="3" max="32767" attributes="0"/>
+                      <Component id="cbGrupos" alignment="3" max="32767" attributes="0"/>
                   </Group>
                   <Component id="jLabel6" alignment="0" min="-2" pref="29" max="-2" attributes="0"/>
               </Group>
@@ -250,7 +250,7 @@
         <Property name="text" type="java.lang.String" value="Informe Asistencia"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JComboBox" name="comboGrupo">
+    <Component class="javax.swing.JComboBox" name="cbGrupos">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Dialog" size="14" style="0"/>
@@ -260,7 +260,7 @@
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="comboGrupoActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cbGruposActionPerformed"/>
       </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
