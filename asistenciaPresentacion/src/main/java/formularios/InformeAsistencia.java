@@ -8,7 +8,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.table.DefaultTableModel;
 //import vista.Asistencia;
 import com.itextpdf.text.Document;
@@ -23,17 +22,28 @@ import com.itextpdf.text.Font;
 import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
+import control.ControlAsistencia;
 import control.ControlGrupos;
+import entidades.Asistencia;
+import funciones.CeldaRenderer;
+import implementaciones.AlumnosDAO;
+import implementaciones.AsistenciasDAO;
 import java.io.FileOutputStream;
+import javax.swing.CellRendererPane;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 public class InformeAsistencia extends javax.swing.JFrame {
 
+    private JTable tablaInforme;
     private IConexionBD conexion;
     private Statement statement;
-    //private List<Alumno> listaAlumnos;
-    //private List<Asistencia> listaAsistencias;
+    private List<Alumno> listaAlumnos;
+    private List<Asistencia> listaAsistencias;
     private List<Grupo> listaGrupos;
 
     public InformeAsistencia(IConexionBD conexion) throws SQLException {
@@ -50,35 +60,68 @@ public class InformeAsistencia extends javax.swing.JFrame {
         }
     }
 
-    private void llenarTablaInformes(String grupoSeleccionado) {
-        DefaultTableModel modelo = (DefaultTableModel) tablaInforme.getModel();
-        modelo.setRowCount(0); // Limpiar la tabla antes de llenarla nuevamente
-        try {
-            String query = "SELECT alumnos.nombre AS nombre_alumno, alumnos.apellido AS apellido_alumno, alumnos.matricula AS matricula_alumno, asistencias.fechaHoraRegistro AS fecha_asistencia, asistencias.estado AS estado_asistencia "
-                    + "FROM alumnos "
-                    + "JOIN asistencias ON alumnos.id = asistencias.id_alumno "
-                    + "JOIN grupos ON asistencias.id_grupo = grupos.id "
-                    + "WHERE grupos.nombreClase = ?"; //Implementado con nombre del grupo pero es con id_grupo
-            try (PreparedStatement statement = conexion.obtenerConexion().prepareStatement(query)) {
-                statement.setString(1, grupoSeleccionado);
-                try (ResultSet rs = statement.executeQuery()) {
-                    while (rs.next()) {
-                        String nombre = rs.getString("nombre_alumno");
-                        String apellido = rs.getString("apellido_alumno");
-                        String matricula = rs.getString("matricula_alumno");
-                        String fechaHoraRegistro = rs.getString("fecha_asistencia");
-                        String estado = rs.getString("estado_asistencia");
-                        modelo.addRow(new Object[]{nombre + " " + apellido, matricula, fechaHoraRegistro, estado});
-                    }
-                    //System.out.println("AQUI");
-                    tablaInforme.setModel(modelo);
-                }
-            }
-        } catch (SQLException e) {
-            //System.out.println(e.getMessage());
-            // Manejo de excepciones
+    private void generarTablaInforme(Long id_grupo){
+        this.listaAsistencias = new AsistenciasDAO(conexion).consultarFechasAsistenciasPorGrupo(id_grupo);
+        //Aqui se genera el encabezado de la tabla en base a las fechas con registros de asistencia
+        String[] EncabezadoTabla = new String[listaAsistencias.size() + 2];
+        EncabezadoTabla[0] = "Matricula";
+        EncabezadoTabla[1] = "Nombre";
+        int contador = 2;
+        for (Asistencia fechaAsistencia : listaAsistencias){
+            EncabezadoTabla[contador] = fechaAsistencia.getFechaHoraRegistro();
+            contador ++;
         }
+        //Aqui obtendremos la lista de alumnos
+        this.listaAlumnos = new AlumnosDAO(conexion).consultarAlumnosPorGrupo(id_grupo);
+        
+        //Aqui generamos la tabla en base al encabezado, los alumnos y las asistencias
+        DefaultTableModel modeloTabla = new DefaultTableModel(EncabezadoTabla, listaAlumnos.size());
+        for(Alumno alumno: listaAlumnos){
+            List<Asistencia> listaAsistenciasAlumno = new ControlAsistencia(conexion).consultarAsistenciasPorGrupoYalumno(id_grupo, alumno.getId_Alumno());
+            String[] asistenciaAlumno = new String[2 + listaAsistencias.size()];
+            asistenciaAlumno[0] = alumno.getMatricula_alumno();
+            asistenciaAlumno[1] = alumno.getNombre() + alumno.getApellido();
+            contador = 2;
+            for (Asistencia asistencia : listaAsistencias){
+                asistenciaAlumno[contador] = asistencia.getEstado();
+                contador ++;
+            }
+            modeloTabla.addRow(asistenciaAlumno);
+        }
+        JTable tablaInforme = new JTable(modeloTabla);
+        spInforme.setViewportView(tablaInforme);
+        System.out.println("Ya se agrego");
     }
+    
+//    private void llenarTablaInformes(String grupoSeleccionado) {
+//        DefaultTableModel modelo = (DefaultTableModel) tablaInforme.getModel();
+//        modelo.setRowCount(0); // Limpiar la tabla antes de llenarla nuevamente
+//        try {
+//            String query = "SELECT alumnos.nombre AS nombre_alumno, alumnos.apellido AS apellido_alumno, alumnos.matricula AS matricula_alumno, asistencias.fechaHoraRegistro AS fecha_asistencia, asistencias.estado AS estado_asistencia "
+//                    + "FROM alumnos "
+//                    + "JOIN asistencias ON alumnos.id = asistencias.id_alumno "
+//                    + "JOIN grupos ON asistencias.id_grupo = grupos.id "
+//                    + "WHERE grupos.nombreClase = ?"; //Implementado con nombre del grupo pero es con id_grupo
+//            try (PreparedStatement statement = conexion.obtenerConexion().prepareStatement(query)) {
+//                statement.setString(1, grupoSeleccionado);
+//                try (ResultSet rs = statement.executeQuery()) {
+//                    while (rs.next()) {
+//                        String nombre = rs.getString("nombre_alumno");
+//                        String apellido = rs.getString("apellido_alumno");
+//                        String matricula = rs.getString("matricula_alumno");
+//                        String fechaHoraRegistro = rs.getString("fecha_asistencia");
+//                        String estado = rs.getString("estado_asistencia");
+//                        modelo.addRow(new Object[]{nombre + " " + apellido, matricula, fechaHoraRegistro, estado});
+//                    }
+//                    //System.out.println("AQUI");
+//                    tablaInforme.setModel(modelo);
+//                }
+//            }
+//        } catch (SQLException e) {
+//            //System.out.println(e.getMessage());
+//            // Manejo de excepciones
+//        }
+//    }
 
     private void llenarTablaEstadisticas(String grupoSeleccionado) throws SQLException {
         DefaultTableModel modelo = (DefaultTableModel) tablaEstadisticas.getModel();
@@ -121,16 +164,17 @@ public class InformeAsistencia extends javax.swing.JFrame {
         cal_FechaFin = new com.toedter.calendar.JDateChooser();
         jLabel6 = new javax.swing.JLabel();
         cal_FechaInicio = new com.toedter.calendar.JDateChooser();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        tablaInforme = new javax.swing.JTable();
         jLabel5 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         cbGrupos = new javax.swing.JComboBox<>();
         btnPdf = new javax.swing.JButton();
+        spInforme = new javax.swing.JScrollPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Informe Asistencia");
+
+        jScrollPane3.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 
         tablaEstadisticas.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -191,45 +235,6 @@ public class InformeAsistencia extends javax.swing.JFrame {
         jLabel6.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         jLabel6.setText("Fecha Fin");
 
-        tablaInforme.setFont(new java.awt.Font("Mongolian Baiti", 0, 15)); // NOI18N
-        tablaInforme.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {"", "", null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Nombre", "Matricula", "Fecha", "Asistencia"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.Object.class, java.lang.String.class
-            };
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false
-            };
-
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        tablaInforme.setToolTipText("");
-        tablaInforme.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
-        jScrollPane2.setViewportView(tablaInforme);
-
         jLabel5.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         jLabel5.setText("Fecha Inicio");
 
@@ -242,11 +247,6 @@ public class InformeAsistencia extends javax.swing.JFrame {
         jLabel4.setText("Informe Asistencia");
 
         cbGrupos.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-        cbGrupos.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cbGruposActionPerformed(evt);
-            }
-        });
 
         btnPdf.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         btnPdf.setText("Descargar PDF");
@@ -263,34 +263,29 @@ public class InformeAsistencia extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(spInforme)
                     .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cbGrupos, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel5)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(cal_FechaInicio, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
-                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 559, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(24, 24, 24)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 465, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(jLabel6)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cal_FechaFin, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(29, 29, 29)
-                                .addComponent(btnAceptar, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(btnSalir, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cbGrupos, 0, 291, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(cal_FechaInicio, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(55, 55, 55)
+                        .addComponent(jLabel6)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cal_FechaFin, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(29, 29, 29)
+                        .addComponent(btnAceptar, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnSalir, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(btnPdf, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jScrollPane3)
+                        .addGap(27, 27, 27)
+                        .addComponent(btnPdf, javax.swing.GroupLayout.PREFERRED_SIZE, 283, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(14, 14, 14)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -310,13 +305,16 @@ public class InformeAsistencia extends javax.swing.JFrame {
                         .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(cbGrupos))
                     .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(btnPdf, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(spInforme, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 266, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(34, 34, 34)
+                        .addComponent(btnPdf, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(24, Short.MAX_VALUE))
         );
 
         pack();
@@ -324,19 +322,22 @@ public class InformeAsistencia extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnAceptarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAceptarActionPerformed
-        String grupoSeleccionado = cbGrupos.getSelectedItem().toString();
+        //String grupoSeleccionado = cbGrupos.getSelectedItem().toString();
         //llenarTablaInforme();
-        llenarTablaInformes(grupoSeleccionado);
+        //llenarTablaInformes(grupoSeleccionado);
         //llenarTablaEstadisticas(grupoSeleccionado);
+        
+        for(Grupo grupo:listaGrupos){
+            if(grupo.getNombreClase() == cbGrupos.getSelectedItem()){
+                generarTablaInforme(grupo.getId_grupo());
+            }
+        }
     }//GEN-LAST:event_btnAceptarActionPerformed
 
     private void btnSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalirActionPerformed
         new MenuForm(conexion).setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnSalirActionPerformed
-
-    private void cbGruposActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbGruposActionPerformed
-    }//GEN-LAST:event_cbGruposActionPerformed
 
     private void btnPdfActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPdfActionPerformed
         JFileChooser fileChooser = new JFileChooser();
@@ -437,9 +438,8 @@ public class InformeAsistencia extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane spInforme;
     private javax.swing.JTable tablaEstadisticas;
-    private javax.swing.JTable tablaInforme;
     // End of variables declaration//GEN-END:variables
 }

@@ -63,14 +63,14 @@ public class AsistenciasDAO implements IAsistenciasDAO {
     public List<Asistencia> consultarAsistenciasPorGrupo(Long id_grupo) {
         List<Asistencia> listaAsistencia = new ArrayList<>();
         ResultSet result = null;
-        String SQL = "SELECT id, id_alumno, id_grupo, horaFechaRegistro, estado FROM asistencias WHERE id_grupo = " + id_grupo.toString() + ";";
+        String SQL = "SELECT id AS id_asistencia, id_alumno, fechaHoraRegistro, estado FROM asistencias WHERE id_grupo = " + id_grupo.toString() + ";";
         try {
             con = conexion.obtenerConexion();
             PreparedStatement st = con.prepareStatement(SQL);
             result = st.executeQuery();
             while (result.next()) {
                 Long id_asistencia = result.getLong("id_asistencia");
-                Long id_alumno = result.getLong("id_grupo");
+                Long id_alumno = result.getLong("id_alumno");
                 String fechaHoraRegistro = result.getString("fechaHoraRegistro");
                 String estado = result.getString("estado");
                 listaAsistencia.add(new Asistencia(id_asistencia, id_alumno, id_grupo, fechaHoraRegistro, estado));
@@ -110,7 +110,7 @@ public class AsistenciasDAO implements IAsistenciasDAO {
     public List<Asistencia> consultarFechasAsistenciasPorGrupo(Long id_grupo) {
         List<Asistencia> listaAsistencia = new ArrayList<>();
         ResultSet result = null;
-        String SQL = "SELECT asistencias.fechaHoraRegistro FROM asistencias WHERE asistencias.id_grupo = " + id_grupo.toString() + " GROUP BY asistencias.fechaHoraRegistro";
+        String SQL = "SELECT asistencias.fechaHoraRegistro AS fecha_asistencia FROM asistencias WHERE asistencias.id_grupo = " + id_grupo.toString() + " GROUP BY asistencias.fechaHoraRegistro";
         try {
             con = conexion.obtenerConexion();
             PreparedStatement st = con.prepareStatement(SQL);

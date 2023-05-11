@@ -13,5 +13,7 @@ public interface IControlAsistencias {
     
     public List<Asistencia> consultarAsistenciasGrupoPorFecha(Long id_grupo, String fecha);
 
+    public List<Asistencia> consultarAsistenciasPorGrupoYalumno(Long id_grupo, Long id_alumno);
+    
     public boolean verificarExistenciaAsistencia(Long id_Grupo, String fecha);
 }

@@ -36,6 +36,11 @@ public class ControlAsistencia implements IControlAsistencias {
     }
     
     @Override
+    public List<Asistencia> consultarAsistenciasPorGrupoYalumno(Long id_grupo, Long id_alumno){
+        return dao.consultarFechasAsistenciasAlumnoPorGrupo(id_grupo, id_alumno);
+    }
+    
+    @Override
     public boolean verificarExistenciaAsistencia(Long id_Grupo, String fecha) {
         List<Asistencia> listaAsistencia = dao.consultarAsistenciasPorFechaYGrupo(fecha, id_Grupo);
         return listaAsistencia.isEmpty();
