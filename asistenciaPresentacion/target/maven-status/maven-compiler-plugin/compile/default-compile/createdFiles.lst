@@ -10,7 +10,6 @@ formularios\AsistenciaForm$6.class
 formularios\AsistenciaForm.class
 funciones\MyDiscoveryListener.class
 formularios\InformeAsistencia$3.class
-.netbeans_automatic_build
 formularios\VincularForm$3.class
 formularios\AsistenciaForm$3.class
 formularios\MenuForm$3.class
@@ -21,6 +20,7 @@ formularios\MenuForm$1.class
 formularios\MenuForm.class
 formularios\InformeAsistencia$6.class
 formularios\InformeAsistencia$1.class
+formularios\AsistenciaForm$7.class
 formularios\InformeAsistencia$2.class
 funciones\Tiempo.class
 formularios\MenuForm$2.class

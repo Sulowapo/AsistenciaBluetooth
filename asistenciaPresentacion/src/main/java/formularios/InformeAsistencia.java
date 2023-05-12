@@ -43,9 +43,9 @@ public class InformeAsistencia extends javax.swing.JFrame {
         llenarComboboxGrupos();
     }
 
-    private void llenarComboboxGrupos(){
+    private void llenarComboboxGrupos() {
         this.listaGrupos = new ControlGrupos(conexion).consultarGrupos();
-        for(Grupo grupo: listaGrupos){
+        for (Grupo grupo : listaGrupos) {
             cbGrupos.addItem(grupo.getNombreClase());
         }
     }
@@ -80,28 +80,44 @@ public class InformeAsistencia extends javax.swing.JFrame {
         }
     }
 
-    private void llenarTablaEstadisticas(String grupoSeleccionado) throws SQLException {
+    private void llenarTablaEstadisticas() {
         DefaultTableModel modelo = (DefaultTableModel) tablaEstadisticas.getModel();
         modelo.setRowCount(0); // Limpiar la tabla antes de llenarla nuevamente
-        String query = "SELECT alumnos.nombre, alumnos.apellido, alumnos.matricula, asistencias.fechaHoraRegistro, asistencias.estado, grupos.nombreClase\n"
-                + "FROM alumnos\n"
-                + "JOIN asistencias ON alumnos.id = asistencias.id_alumno\n"
-                + "JOIN grupos ON asistencias.id_grupo = grupos.id"
-                + "WHERE nombreClase = ?";
-        try (PreparedStatement statement = conexion.obtenerConexion().prepareStatement(query)) {
-            statement.setString(1, grupoSeleccionado);
-            try (ResultSet rs = statement.executeQuery()) {
-                while (rs.next()) {
-                    int idAlumno = rs.getInt("id_alumno");
-                    String nombre = rs.getString("nombre");
-                    String apellido = rs.getString("apellido");
-                    int presentes = rs.getInt("presentes");
-                    int faltas = rs.getInt("faltas");
-                    int retardos = rs.getInt("retardos");
-                    int justificados = rs.getInt("justificados");
-                    modelo.addRow(new Object[]{idAlumno, nombre, apellido, presentes, faltas, retardos, justificados});
+        try {
+            String grupoSeleccionado = cbGrupos.getSelectedItem().toString();
+            String query = "SELECT alumnos.id AS id_alumno, alumnos.nombre AS nombre_alumno, alumnos.apellido AS apellido_alumno, alumnos.matricula AS matricula_alumno, "
+                    + "(SELECT COUNT(*) FROM asistencias INNER JOIN grupos ON asistencias.id_grupo = grupos.id WHERE id_alumno = alumnos.id AND estado = 'Presente' AND grupos.nombreClase = ?) AS presentes, "
+                    + "(SELECT COUNT(*) FROM asistencias INNER JOIN grupos ON asistencias.id_grupo = grupos.id WHERE id_alumno = alumnos.id AND estado = 'Falta' AND grupos.nombreClase = ?) AS faltas, "
+                    + "(SELECT COUNT(*) FROM asistencias INNER JOIN grupos ON asistencias.id_grupo = grupos.id WHERE id_alumno = alumnos.id AND estado = 'Retardo' AND grupos.nombreClase = ?) AS retardos, "
+                    + "(SELECT COUNT(*) FROM asistencias INNER JOIN grupos ON asistencias.id_grupo = grupos.id WHERE id_alumno = alumnos.id AND estado = 'Justificado' AND grupos.nombreClase = ?) AS justificados "
+                    + "FROM alumnos";
+            try (PreparedStatement statement = conexion.obtenerConexion().prepareStatement(query)) {
+                statement.setString(1, grupoSeleccionado);
+                statement.setString(2, grupoSeleccionado);
+                statement.setString(3, grupoSeleccionado);
+                statement.setString(4, grupoSeleccionado);
+                try (ResultSet rs = statement.executeQuery()) {
+                    while (rs.next()) {
+                        int presentes = rs.getInt("presentes");
+                        int faltas = rs.getInt("faltas");
+                        int retardos = rs.getInt("retardos");
+                        int justificados = rs.getInt("justificados");
+
+                        // Verificar si todos los valores son cero
+                        if (presentes != 0 || faltas != 0 || retardos != 0 || justificados != 0) {
+                            int idAlumno = rs.getInt("id_alumno");
+                            String nombre = rs.getString("nombre_alumno");
+                            String apellido = rs.getString("apellido_alumno");
+                            String matricula = rs.getString("matricula_alumno");
+
+                            modelo.addRow(new Object[]{matricula, nombre + " " + apellido, presentes, faltas, justificados, retardos});
+                        }
+                    }
+                    tablaEstadisticas.setModel(modelo);
                 }
             }
+        } catch (SQLException e) {
+            // Manejo de excepciones
         }
     }
 
@@ -270,23 +286,23 @@ public class InformeAsistencia extends javax.swing.JFrame {
                                 .addComponent(jLabel1)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(cbGrupos, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGap(15, 15, 15)
                                 .addComponent(jLabel5)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGap(10, 10, 10)
                                 .addComponent(cal_FechaInicio, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(0, 0, Short.MAX_VALUE)
                                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 559, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(24, 24, 24)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 465, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(jLabel6)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cal_FechaFin, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(29, 29, 29)
+                                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(1, 1, 1)
+                                .addComponent(cal_FechaFin, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(btnAceptar, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGap(18, 18, 18)
                                 .addComponent(btnSalir, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
@@ -325,9 +341,8 @@ public class InformeAsistencia extends javax.swing.JFrame {
 
     private void btnAceptarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAceptarActionPerformed
         String grupoSeleccionado = cbGrupos.getSelectedItem().toString();
-        //llenarTablaInforme();
         llenarTablaInformes(grupoSeleccionado);
-        //llenarTablaEstadisticas(grupoSeleccionado);
+        llenarTablaEstadisticas();
     }//GEN-LAST:event_btnAceptarActionPerformed
 
     private void btnSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalirActionPerformed
@@ -341,6 +356,7 @@ public class InformeAsistencia extends javax.swing.JFrame {
     private void btnPdfActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPdfActionPerformed
         JFileChooser fileChooser = new JFileChooser();
         int result = fileChooser.showSaveDialog(null);
+        String grupoSeleccionado = cbGrupos.getSelectedItem().toString();
 
         if (result == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
@@ -355,12 +371,15 @@ public class InformeAsistencia extends javax.swing.JFrame {
 
                 // Crear el título "Informe de Asistencia"
                 Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16);
-                Paragraph title = new Paragraph("Informe de Asistencia", titleFont);
+                Paragraph titulo = new Paragraph("Informe de Asistencia", titleFont);
+                Paragraph clase = new Paragraph(grupoSeleccionado);
                 Paragraph blank = new Paragraph(" ");
-                title.setAlignment(Element.ALIGN_CENTER);
+                titulo.setAlignment(Element.ALIGN_CENTER);
+                clase.setAlignment(Element.ALIGN_CENTER);
 
                 // Agregar el título al documento
-                document.add(title);
+                document.add(titulo);
+                document.add(clase);
 
                 // Agregar salto de línea
                 document.add(Chunk.NEWLINE);
@@ -406,6 +425,8 @@ public class InformeAsistencia extends javax.swing.JFrame {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        } else {
+            JOptionPane.showMessageDialog(null, "Descarga cancelada");
         }
     }//GEN-LAST:event_btnPdfActionPerformed
 
